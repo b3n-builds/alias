@@ -327,3 +327,10 @@ html[dir="rtl"] .ev { border-radius: 14px 6px 6px 14px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* tonight’s rooms on the talk screen */
+.rooms-card { padding: 14px 16px; }
+.rooms { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 10px; }
+.rooms li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.rooms .tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); }
+.rooms small { flex-basis: 100%; }

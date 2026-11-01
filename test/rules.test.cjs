@@ -2,7 +2,7 @@
 const assert = require('assert');
 const { loadGame } = require('../sim/load.cjs');
 const G = loadGame();
-const { SCENARIOS, BALANCE, SKIP, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
+const { SCENARIOS, BALANCE, SKIP, planNight, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
 const names = n => Array.from({ length: n }, (_, i) => 'P' + i);
 const roleIdx = (g, r) => g.players.map((p, i) => (p.role === r ? i : -1)).filter(i => i >= 0);
 const set = (n, extra = {}) => ({ scenario: 'noir', lang: 'en', mode: 'classic', minutes: 2, killers: 'auto', ...extra });
@@ -44,6 +44,48 @@ for (let n = 4; n <= 12; n++) for (let t = 0; t < 30; t++) {
     if (p.role === 'killer') ok(mates.some(m => m.role !== 'killer'), 'killer hides with an innocent');
   });
 }
+
+// rooms: a few open each night, some with powers; Locked needs at least three rooms
+for (let n = 4; n <= 12; n++) for (let t = 0; t < 20; t++) {
+  const g = newGame(names(n), set(n)), N = planNight(g), R = BALANCE.rooms(n);
+  ok(N.rooms.length === R && new Set(N.rooms).size === R, 'room count');
+  ok(Object.keys(N.powers).length === BALANCE.powers(n) && Object.keys(N.powers).every(r => N.rooms.includes(+r)), 'powers on open rooms');
+  if (R < 3) ok(!Object.values(N.powers).includes('locked'), 'no locked room with two rooms');
+}
+
+// one night with chosen rooms: killer acts from room a with one innocent; b is a lookout; c is locked
+function night(power, moveKiller) {
+  const g = newGame(names(6), set(6)), k = roleIdx(g, 'killer')[0], inn = g.players.map((_, i) => i).filter(i => i !== k);
+  const [a, b, c] = planNight(g).rooms;
+  g.night.powers = { [b]: 'lookout', [c]: 'locked', ...(power ? { [a]: power } : {}) };
+  g.picks = { [k]: moveKiller ? c : a, [inn[0]]: a, [inn[1]]: b, [inn[2]]: b, [inn[3]]: c, [inn[4]]: c };
+  g.witness = 0.5;
+  g.kills = [{ by: k, target: inn[4], alias: g.players[inn[4]].alias }];
+  resolveRound(g);
+  return { g, k, inn, a, b, c };
+}
+const noticeChance = BALANCE.notice;
+BALANCE.notice = 1; // roommates always notice, so the checks below are exact
+for (let t = 0; t < 40; t++) {
+  const { g, k, inn, a, b } = night();
+  ok(g.alibis[k].place === a && g.alibis[inn[1]].place === b && g.alibis[k].others === 1, 'picks become alibis');
+  ok(g.report.dead.includes(inn[4]), 'kill from an open room lands');
+  ok(g.peek[inn[0]].left && !g.peek[inn[1]].left && g.peek[k].acted && !g.peek[k].left, 'only roommates notice someone left');
+  ok(g.peek[k].trace != null && g.peek[k].trace === g.peek[inn[0]].trace && g.peek[inn[1]].trace == null, 'trace only for the room');
+  ok(!('sound' in g.peek[k]) && (g.peek[inn[1]].sound == null || g.peek[inn[1]].sound === a), 'sounds are true and never for killers');
+  ok(g.peek[inn[1]].look && g.alibis[g.peek[inn[1]].look.p].place === g.peek[inn[1]].look.place, 'lookout sees a true room');
+  ok(Object.values(g.peek).filter(q => q.rumor).length === 1, 'one rumor a night');
+  ok(g.peek[k].cover && g.peek[k].cover.place !== a, 'cover story points elsewhere');
+  const locked = night(null, true);
+  ok(locked.g.report.dead.length === 0 && locked.g.players[locked.k].lastKill == null, 'no kill from a locked room');
+  ok(night('dark').g.report.seen.length === 0, 'dark room hides the killer from witnesses');
+}
+{
+  let crowded = 0, plain = 0;
+  for (let t = 0; t < 400; t++) { crowded += night('crowded').g.report.seen.length; plain += night().g.report.seen.length; }
+  ok(crowded === 400 && plain > 120 && plain < 280, 'crowded doubles the witness chance');
+}
+BALANCE.notice = noticeChance;
 
 // the table question asks about a place a witness named, else a place someone was last night
 for (let t = 0; t < 50; t++) {

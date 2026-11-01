@@ -4,7 +4,7 @@
 // Balance knobs, tuned with sim/simulate.cjs (see BALANCE.md for the reasoning).
 const BALANCE = {
   // Table-size rules. Uneven on purpose: player-count parity swings these games (see BALANCE.md).
-  streak: n => ([4, 7, 10].includes(n) ? 2 : 3), // top the vote this many rounds in a row to be thrown out
+  streak: n => (n === 4 ? 2 : n === 6 || n === 9 ? 4 : 3), // top the vote this many rounds in a row to be thrown out
   killGap: n => (n >= 7 ? 2 : 1), // big games: a killer waits a round after writing a name
   killers: n => (n >= 10 ? 3 : n >= 7 ? 2 : 1), // 'Auto' killer count (about √n, as in Mafia)
   witnessScale: n => (n === 6 || n === 9 ? 0.4 : n === 11 ? 1.5 : 1),
@@ -13,8 +13,15 @@ const BALANCE = {
   caseRounds: { Easy: 2, Medium: 3, Hard: 4 },
   minutes: { Easy: 3, Medium: 2, Hard: 2 },
   clueShare: [0.3, 0.7], // a clue should rule out roughly a third to two thirds of the names still possible
-  witness: { Easy: 0.65, Medium: 0.5, Hard: 0.35 } // chance a killer who writes a name is seen slipping away
+  witness: { Easy: 0.35, Medium: 0.25, Hard: 0.15 }, // chance a killer who writes a name is seen slipping away
+  rooms: n => Math.min(7, Math.max(2, Math.ceil(n / 2))), // rooms open each night
+  powers: n => (n >= 6 ? 2 : 1), // how many of them have a power
+  notice: 0.3, // chance each roommate notices a killer slipping out
+  sound: 0.1, // chance an innocent elsewhere hears the room a killer slipped out of
+  rumorTrue: 2 / 3
 };
+// lookout: learn where one other person was; locked: nobody slips out; dark: no witness; crowded: witness chance doubles
+const POWERS = ['lookout', 'locked', 'dark', 'crowded'];
 const MODES = {
   classic: { kills: 1, penalty: false },
   penalty: { kills: 1, penalty: true },
@@ -55,7 +62,7 @@ function newGame(names, settings, rnd = Math.random) {
     screen: 'story', round: 1, idx: 0, shown: false,
     players: names.map((name, i) => ({ name, role: roles[i], alias: pool[i], alive: true, out: null, cleared: false, lastKill: null })),
     aliasList: shuffle(pool.slice(0, n + BALANCE.decoys[sc.level]), rnd),
-    beats: shuffle(range(txt.beats.length), rnd),
+    beats: shuffle(range(txt.beats.length), rnd), dareBase: Math.floor(rnd() * 1000), night: null, picks: {}, peek: {},
     order: [], votes: {}, kills: [], case: null, caseLog: [], streak: null, notes: [], usedClues: [], event: null,
     alibis: {}, report: null, winner: null, talkEnds: 0
   };
@@ -138,8 +145,19 @@ function openRound(g, rnd = Math.random) {
   const seen = g.round > 1 && g.report ? g.report.seen : [];
   const held = [...new Set(Object.keys(g.alibis).filter(i => g.players[i].alive).map(i => g.alibis[i].place))];
   const ask = seen.length ? { kind: 'seen', place: pick(seen, rnd) } : { kind: 'place', place: pick(held, rnd) };
-  g.event = { beat: g.beats[r % g.beats.length], ask, clue: clue && clue.key, two: !!(clue && clue.two) };
+  g.event = { beat: g.beats[r % g.beats.length], ask, dare: g.dareBase + r, clue: clue && clue.key, two: !!(clue && clue.two) };
+  planNight(g, rnd);
   if (clue) g.notes.push({ round: g.round, kind: 'clue', key: clue.key, who: clue.who, two: clue.two });
+}
+
+// Tonight's rooms: a few of the case's places are open, some with a power. Shown at talk so people can plan, and lie.
+function planNight(g, rnd = Math.random) {
+  const n = g.players.filter(p => p.alive).length, R = BALANCE.rooms(n);
+  const rooms = shuffle(range(SCENARIOS[g.scenario][g.lang].places.length), rnd).slice(0, R);
+  const kinds = shuffle(POWERS.filter(p => p !== 'locked' || R >= 3), rnd).slice(0, BALANCE.powers(n));
+  const powers = {};
+  shuffle(rooms, rnd).slice(0, kinds.length).forEach((r, i) => { powers[r] = kinds[i]; });
+  return (g.night = { rooms, powers });
 }
 
 // After writing a name (right or wrong), a killer waits killGap rounds before writing again.
@@ -160,20 +178,56 @@ function tally(votes) {
 // Votes and kills resolve together: a killer thrown out this round still gets their kill.
 function resolveRound(g, rnd = Math.random) {
   const P = g.players, report = { round: g.round, top: null, count: 0, ejected: null, dead: [], clears: [], seen: [] };
+  const A = P.map((_, i) => i).filter(i => P[i].alive), N = g.night || planNight(g, rnd), power = r => N.powers[r];
+  // tonight's alibis come from the rooms people picked; anyone without a pick is placed at random
+  const room = {};
+  for (const i of A) room[i] = N.rooms.includes(g.picks && g.picks[i]) ? g.picks[i] : pick(N.rooms, rnd);
+  const count = r => A.filter(i => room[i] === r).length;
+  g.alibis = {};
+  for (const i of A) g.alibis[i] = { place: room[i], others: count(room[i]) - 1 };
+
+  const kills = g.kills.filter(k => power(room[k.by]) !== 'locked'); // nobody slips out of a locked room
   const deaths = new Set();
   let wrong = 0;
-  for (const k of g.kills) {
+  for (const k of kills) {
     P[k.by].lastKill = g.round;
     if (P[k.target].alias === k.alias) deaths.add(k.target); else wrong++;
   }
-  // a killer who wrote a name tonight may have been seen slipping away from their alibi place
-  for (const k of new Set(g.kills.map(x => x.by))) {
-    const place = g.alibis[k] && g.alibis[k].place;
-    if (place != null && rnd() < (g.witness ?? 0.5) && !report.seen.includes(place)) {
+  // a killer who wrote a name tonight may have been seen slipping away from their room
+  const acted = [...new Set(kills.map(x => x.by))], killRooms = [...new Set(acted.map(k => room[k]))];
+  for (const k of acted) {
+    const place = room[k], chance = power(place) === 'dark' ? 0 : (g.witness ?? 0.5) * (power(place) === 'crowded' ? 2 : 1);
+    if (rnd() < chance && !report.seen.includes(place)) {
       report.seen.push(place);
       g.notes.push({ round: g.round, kind: 'seen', place });
     }
   }
+
+  // morning peek: what each player privately noticed last night
+  const trace = {}, peek = {};
+  for (const r of killRooms) trace[r] = Math.floor(rnd() * 1000);
+  for (const i of A) {
+    const q = { place: room[i], others: g.alibis[i].others };
+    if (acted.includes(i)) q.acted = true;
+    if (acted.some(k => k !== i && room[k] === room[i]) && rnd() < BALANCE.notice) q.left = true;
+    if (room[i] in trace) q.trace = trace[room[i]];
+    else if (P[i].role !== 'killer' && killRooms.length && rnd() < BALANCE.sound) q.sound = pick(killRooms, rnd);
+    const others = A.filter(j => j !== i);
+    if (power(room[i]) === 'lookout' && others.length) { const j = pick(others, rnd); q.look = { p: j, place: room[j] }; }
+    peek[i] = q;
+  }
+  // one rumor a night, true two times in three
+  if (A.length > 2) {
+    const r = pick(A, rnd), j = pick(A.filter(x => x !== r), rnd), wrongRooms = N.rooms.filter(x => x !== room[j]);
+    peek[r].rumor = { p: j, place: rnd() < BALANCE.rumorTrue || !wrongRooms.length ? room[j] : pick(wrongRooms, rnd) };
+  }
+  // a killer who acted gets a cover story: an empty room to claim alone, else the busiest room to blend into
+  for (const k of acted) {
+    const empty = N.rooms.filter(r => !count(r)), busy = N.rooms.filter(r => r !== room[k]).sort((a, b) => count(b) - count(a));
+    if (empty.length) peek[k].cover = { place: pick(empty, rnd), alone: true };
+    else if (busy.length) peek[k].cover = { place: busy[0], alone: false };
+  }
+  g.peek = peek;
 
   // a skip competes like a candidate: if it tops the vote, nobody does
   const most = tally(g.votes), top = most === SKIP ? null : most;
@@ -198,7 +252,7 @@ function resolveRound(g, rnd = Math.random) {
   }
   if (!P.some(p => p.alive && p.role === 'detective')) g.case = null;
   g.winner = winnerOf(g);
-  g.report = report; g.votes = {}; g.kills = []; g.round++;
+  g.report = report; g.votes = {}; g.kills = []; g.picks = {}; g.round++;
   return g;
 }
 
@@ -209,5 +263,5 @@ function winnerOf(g) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { BALANCE, MODES, ROLES, SKIP, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, letters, clueFits, clueKeys, nameClue, openRound, canKill, tally, resolveRound, winnerOf };
+  module.exports = { BALANCE, MODES, ROLES, SKIP, POWERS, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, planNight, letters, clueFits, clueKeys, nameClue, openRound, canKill, tally, resolveRound, winnerOf };
 }

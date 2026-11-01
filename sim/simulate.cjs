@@ -11,6 +11,10 @@
 // - Alibis: a killer who killed someone can claim the victim's place (they listen first, then claim).
 //   Otherwise they must either squeeze into a pair's place (three people claim a two-person place)
 //   or claim to be alone, which no innocent ever is.
+// - Rooms: innocents pick at random, leaning to a Locked room (a proven-safe alibi); killers on a night they act
+//   lean to a Dark room and never pick Locked. Morning peek info is shared at the table: roommates of a killer
+//   who slipped out point at that room, sounds point at it more weakly, and lookout sightings or rumors that put
+//   someone in a killer's room point at that person.
 const { loadGame } = require('./load.cjs');
 
 function mulberry32(a) {
@@ -60,9 +64,31 @@ function play(G, n, settings, skill, rnd) {
       for (const o of there) if (!isK(o)) for (const c of there) if (c !== o) own[o][c] += WITNESS_WEIGHT / (there.length - 1);
     }
 
+    // morning peek, shared at the table
+    const peek = night.peek || {}, killRooms = new Set(Object.values(peek).filter(q => q.trace != null).map(q => q.place));
+    for (const i of A) {
+      const q = peek[i];
+      if (!q || isK(i)) continue;
+      const point = (place, w) => {
+        const there = A.filter(c => c !== i && al[c] && al[c].place === place);
+        for (const c of there) { own[i][c] += w / there.length; pub[c] += (w * skill.catch * PEEK_SHARE) / there.length; }
+      };
+      if (q.left) point(q.place, LEFT_WEIGHT);
+      if (q.sound != null) point(q.sound, 1);
+      if (q.look && killRooms.has(q.look.place)) { own[i][q.look.p] += 2; pub[q.look.p] += skill.catch; }
+      if (q.rumor && killRooms.has(q.rumor.place)) pub[q.rumor.p] += 0.5 * skill.catch;
+    }
+
     // secret turns
     const order = alive();
-    g.alibis = G.assignAlibis(g, rnd);
+    const N = g.night, byPower = p => N.rooms.filter(r => N.powers[r] === p);
+    const free = N.rooms.filter(r => N.powers[r] !== 'locked');
+    g.picks = {};
+    for (const i of order) {
+      const acting = isK(i) && G.canKill(g, i);
+      if (acting) g.picks[i] = byPower('dark').length && rnd() < 0.7 ? byPower('dark')[0] : G.pick(free, rnd);
+      else g.picks[i] = byPower('locked').length && rnd() < 0.4 ? byPower('locked')[0] : G.pick(N.rooms, rnd);
+    }
     g.votes = {}; g.kills = [];
     for (const v of order) {
       const others = order.filter(j => j !== v && !P[j].cleared);
@@ -114,12 +140,13 @@ function play(G, n, settings, skill, rnd) {
     if (r.dead.length && st.firstDeath == null) st.firstDeath = round;
     if (r.ejected != null) { if (isK(r.ejected)) st.ejectedKiller++; else st.ejectedInnocent++; }
     for (const c of r.clears) pub[c] = -99;
-    night = { alibis: g.alibis, seen: r.seen };
+    night = { alibis: g.alibis, seen: r.seen, peek: g.peek };
   }
   return { winner: g.winner || 'draw', rounds: g.round - 1, ...st };
 }
 const MODES_PENALTY = (G, g) => G.MODES[g.settings.mode].penalty;
 const WITNESS_WEIGHT = 2;
+const LEFT_WEIGHT = 2, PEEK_SHARE = 0.5; // how hard roommates push, and how much of a private hint the table believes
 
 function run(G, cfg, games, seed = 1) {
   const rnd = mulberry32(seed);

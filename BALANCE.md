@@ -44,18 +44,26 @@ not as exact win rates.
    10–12. You can still pick 1, 2 or 3 yourself (capped so each killer faces at least two innocents).
 3. **Your "kill every 2 rounds" rule for big games stays**, starting at 7 players. On its own it made big games
    unwinnable for killers (one killer, half the attempts, ~10 people to remove), which is why it comes with more killers.
-4. **Vote streak by table size:** thrown out after 2 straight top votes at 4, 7 and 10 players, 3 elsewhere.
-   The odd pattern is deliberate: those sizes swing toward the killers otherwise.
+4. **Vote streak by table size:** thrown out after 2 straight top votes at 4 players, 4 at 6 and 9, 3 elsewhere.
+   The odd pattern is deliberate: player-count parity swings these sizes (re-tuned for rooms in 1.1).
 5. **Difficulty now means "how hard the case is for the town":**
 
    | Level  | Decoy names | Detective result after | Witness chance |
    |--------|-------------|------------------------|----------------|
-   | Easy   | 4           | 2 rounds               | 65%            |
-   | Medium | 3           | 3 rounds               | 50%            |
-   | Hard   | 3           | 4 rounds               | 35%            |
+   | Easy   | 4           | 2 rounds               | 35%            |
+   | Medium | 3           | 3 rounds               | 25%            |
+   | Hard   | 3           | 4 rounds               | 15%            |
 
    Hard cases also use look-alike names (Nova / Nova Two, Theon the Elder / Theon the Younger).
 6. **Witness chance is scaled down at 6 and 9 players and up at 11**, where one report was too decisive or too rare.
+7. **Rooms and the morning peek (1.1).** Playtesters had nothing to check the witness report against and nothing
+   to bluff with. Now each night a few rooms open (about one per two players), some with a power (Lookout, Locked,
+   Dark, Crowded), and everyone picks their room in secret. After the morning report each player privately sees how
+   many were with them, whether someone slipped out, and sometimes a sound, a trace, a lookout sighting, a rumor or
+   (killers) a cover story. That is a lot of true private information, and the first simulation had killers winning
+   only 9–31%. The dials that brought it back without removing any of it: roommates notice a killer slipping out
+   30% of the time each (not always), the public witness is rarer (it matters less now), sounds are 10%, and the
+   vote streaks above.
 
 ## What deliberately did not change
 
@@ -66,12 +74,12 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 | Players         | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
 |-----------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| Easy            | 43% | 40% | 32% | 34% | 39% | 36% | 37% | 51% | 43% |
-| Medium          | 48% | 52% | 43% | 41% | 48% | 43% | 43% | 57% | 49% |
-| Hard            | 52% | 53% | 46% | 48% | 54% | 46% | 51% | 61% | 52% |
-| Avg. rounds (M) | 3.1 | 5.0 | 6.0 | 6.9 | 9.7 | 11  | 9.7 | 12  | 14  |
+| Easy            | 41% | 34% | 34% | 49% | 32% | 35% | 59% | 46% | 33% |
+| Medium          | 47% | 43% | 40% | 54% | 39% | 43% | 64% | 47% | 38% |
+| Hard            | 50% | 43% | 39% | 57% | 39% | 43% | 64% | 50% | 39% |
+| Avg. rounds (M) | 3.1 | 4.9 | 6.2 | 7.9 | 9.6 | 12  | 10  | 12  | 14  |
 
-- Penalty mode leans to the town (~30% killer wins); Frenzy leans to the killers (~75%). The setup screen says so.
+- Penalty mode leans to the town (24–51% killer wins); Frenzy leans to the killers (66–92%). The setup screen says so.
 - A sharp table beats killers most of the time and a casual one loses to them. Skill matters, which is healthy.
 
 ## Known limits
@@ -79,6 +87,10 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 - Big games run long (10–14 rounds at 10+ players), mostly because of the every-other-round rule.
   If that drags, the first thing to try is 1-minute talk time, or turning the rule off for 7–9 players.
 - Small tables (4–5 players) are swingy in every game of this kind.
+- 10 players lean to the killers (~64%). The streak dial jumps from 32% (2) to 64% (3) there, and fewer rooms or
+  two killers did not help; the closer side was kept.
+- The bots pick rooms simply (random, leaning Locked for innocents and Dark for acting killers). Real killers who
+  choose empty rooms on purpose will do better than the bots; watch for that.
 - 1.0.3 playtest fix: at 4 players everyone used to share one alibi place, which made witness reports useless.
   Alibis are now pairs and trios at every size, and the table question each round asks about a real place
   (the one a witness named, or one where people were).
