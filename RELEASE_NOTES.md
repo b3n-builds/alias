@@ -1,4 +1,4 @@
-# ALIAS 1.2.0
+# ALIAS 1.2.1
 
 - **Kills name their room.** When someone dies, the morning report says which room the name was written from.
   The killer has to claim they were somewhere else, and anyone who was really in that room can call the lie.

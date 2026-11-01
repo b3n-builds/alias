@@ -145,25 +145,27 @@ g.votes = { 0: 1, 1: 0 }; resolveRound(g);
 ok(g.streak === null, 'tie resets streak');
 
 // kills, witnesses, penalty clears, pen rest
-g = newGame(names(6), set(6, { mode: 'penalty' }));
+const plain = g => { planNight(g); g.night.powers = {}; return g; }; // no Locked room to block a kill
+g = plain(newGame(names(6), set(6, { mode: 'penalty' })));
 [k] = roleIdx(g, 'killer'); civ = roleIdx(g, 'civilian');
 g.kills = [{ by: k, target: civ[0], alias: g.players[civ[0]].alias }, { by: k, target: civ[1], alias: 'nobody' }];
 resolveRound(g);
 ok(g.report.dead.length === 1 && g.players[civ[0]].out === 'killed', 'correct name kills');
 ok(g.report.clears.length === 1 && g.players[g.report.clears[0]].role !== 'killer', 'wrong name clears an innocent');
-g = newGame(names(9), set(9));
+g = plain(newGame(names(9), set(9)));
 const ks = roleIdx(g, 'killer');
 ok(ks.length === 2 && canKill(g, ks[0]), 'can kill round 1');
 let seenAny = 0;
 for (let t = 0; t < 200; t++) {
   const h = newGame(names(6), set(6, { scenario: 'school' }));
   const [hk] = roleIdx(h, 'killer');
+  planNight(h); h.night.powers = {}; h.witness = 0.5; // a plain night, so this measures the witness alone
   h.kills = [{ by: hk, target: roleIdx(h, 'civilian')[0], alias: 'x' }];
   resolveRound(h);
   if (h.report.seen.length) { seenAny++; ok(h.report.seen[0] === h.alibis[hk].place, 'witness names the killer\'s place'); }
 }
 ok(seenAny > 20 && seenAny < 200, 'witness is a chance, not a certainty');
-g.kills = [{ by: ks[0], target: roleIdx(g, 'civilian')[0], alias: 'x' }]; resolveRound(g);
+g.kills = [{ by: ks[0], target: roleIdx(g, 'civilian')[0], alias: 'x' }]; plain(g); resolveRound(g);
 ok(!canKill(g, ks[0]) && canKill(g, ks[1]), 'pen rests in big games');
 resolveRound(g); ok(canKill(g, ks[0]), 'pen back after a round');
 
