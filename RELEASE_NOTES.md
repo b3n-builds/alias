@@ -1,4 +1,11 @@
-# ALIAS 1.0.2
+# ALIAS 1.0.3
+
+- Alibis: everyone is now in a pair or a trio, never all in one place. In 4-player games everyone used to share
+  the same place, so a witness report told you nothing.
+- The question each round now comes from the evidence: it asks about the place a witness named, or a place where
+  people really were last night, instead of a random story question.
+
+## 1.0.2
 
 - Signed with the permanent ALIAS key. From this version on, updates install over the old app.
 - **Uninstall any older ALIAS once before installing this one** (older builds used throwaway keys).
