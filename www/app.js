@@ -430,7 +430,7 @@ const VIEWS = {
     return { bar: bar(t.secretTurn(g.idx + 1, g.order.length)), body: `<div class="me" data-paper="${sc.look.paper}">${ico(p.role)}<div><b>${esc(p.alias)}</b><small>${esc(p.name)} · ${t.roles[p.role]}</small></div></div>
         <section class="panel"><h3>${ico('pin')}${t.tonight}</h3><p>${alibiText(g, g.alibis[me])}</p>
           <p class="muted small">${p.role === 'killer' ? t.alibiKiller : t.rememberIt}</p></section>
-        <section class="panel"><h3>${ico('vote')}${t.vote}</h3><p class="muted small">${t.voteHint}</p>${chips('vote', others, D.vote)}</section>
+        <section class="panel"><h3>${ico('vote')}${t.vote}</h3><p class="muted small">${t.voteHint}</p>${chips('vote', [...others, { v: SKIP, label: t.skipVote }], D.vote)}</section>
         ${extra}`,
       dock: `<button class="btn primary block" data-act="done" ${ok ? '' : 'disabled'}>${t.done}</button>` };
   },
@@ -444,7 +444,7 @@ const VIEWS = {
     let vote;
     if (r.ejected !== null) vote = item('out', 'vote', `<big>${esc(t.outTitle(P[r.ejected].name))}</big>${t.outBody(g.streakLen, t.roles[P[r.ejected].role])}`);
     else if (r.top !== null) vote = item('vote', 'vote', `${t.mostVotes(esc(P[r.top].name), r.count, g.streakLen)} ${strikes(r.count, g.streakLen)}`);
-    else vote = item('vote', 'vote', t.split);
+    else vote = item('vote', 'vote', r.skipped ? t.skipped : t.split);
     const clears = r.clears.map(i => item('clue', 'check', t.wrongName(esc(P[i].name)))).join('');
     return { bar: bar(t.morning(r.round)), body: `<section class="dawn">${ico('sun')}<p class="label">${t.morning(r.round)}</p><h1>${t.morningTitle}</h1></section>
       <div class="report">${night}${seen}${vote}${clears}</div>`,

@@ -1,4 +1,9 @@
-# ALIAS 1.0.3
+# ALIAS 1.0.4
+
+- New: **Skip vote**. Not sure who it is? Skip. Skip counts like a candidate: if it gets the most votes (or ties for
+  most), nobody tops that round and any streak toward being thrown out is broken.
+
+## 1.0.3
 
 - Alibis: everyone is now in a pair or a trio, never all in one place. In 4-player games everyone used to share
   the same place, so a witness report told you nothing.

@@ -2,7 +2,7 @@
 const assert = require('assert');
 const { loadGame } = require('../sim/load.cjs');
 const G = loadGame();
-const { SCENARIOS, BALANCE, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
+const { SCENARIOS, BALANCE, SKIP, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
 const names = n => Array.from({ length: n }, (_, i) => 'P' + i);
 const roleIdx = (g, r) => g.players.map((p, i) => (p.role === r ? i : -1)).filter(i => i >= 0);
 const set = (n, extra = {}) => ({ scenario: 'noir', lang: 'en', mode: 'classic', minutes: 2, killers: 'auto', ...extra });
@@ -71,6 +71,21 @@ ok(clueFits('has:ه', 'الملعقة الفضية') && clueFits('start:ا', 'أ
 // ties eject nobody
 ok(tally({ 0: 1, 1: 0 }) === null, 'tie');
 ok(tally({ 0: 2, 1: 2, 2: 0 }) === 2, 'plurality');
+
+// skip competes like a candidate: winning or tying for most means nobody tops, and the streak breaks
+{
+  const g = newGame(names(6), set(6)), k = roleIdx(g, 'killer')[0], c = roleIdx(g, 'civilian')[0];
+  g.votes = allVote(g, k, c); resolveRound(g);
+  ok(g.streak && g.streak.target === k, 'streak started');
+  const alive = g.players.map((_, i) => i).filter(i => g.players[i].alive);
+  g.votes = Object.fromEntries(alive.map((i, j) => [i, j < 4 ? SKIP : k])); resolveRound(g);
+  ok(g.report.skipped && g.report.top === null && g.streak === null, 'skip tops the vote and breaks the streak');
+  g.votes = allVote(g, k, c); resolveRound(g);
+  g.votes = Object.fromEntries(alive.map((i, j) => [i, j < 3 ? SKIP : k])); resolveRound(g);
+  ok(g.report.top === null && g.streak === null, 'skip tying for most also breaks the streak');
+  g.votes = Object.fromEntries(alive.map((i, j) => [i, j < 2 ? SKIP : k])); resolveRound(g);
+  ok(!g.report.skipped && g.report.top === k, 'skip in the minority changes nothing');
+}
 
 // vote streak
 let g = newGame(names(8), set(8));

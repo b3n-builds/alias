@@ -21,6 +21,7 @@ const MODES = {
   frenzy: { kills: 2, penalty: false }
 };
 const ROLES = ['killer', 'detective', 'civilian'];
+const SKIP = -1; // vote value for "skip vote"
 const SCENARIOS = typeof SCENARIOS_DATA !== 'undefined' ? SCENARIOS_DATA : {};
 
 function shuffle(a, rnd = Math.random) {
@@ -174,7 +175,9 @@ function resolveRound(g, rnd = Math.random) {
     }
   }
 
-  const top = tally(g.votes);
+  // a skip competes like a candidate: if it tops the vote, nobody does
+  const most = tally(g.votes), top = most === SKIP ? null : most;
+  report.skipped = most === SKIP;
   if (top === null) g.streak = null;
   else if (g.streak && g.streak.target === top) g.streak.count++;
   else g.streak = { target: top, count: 1 };
@@ -206,5 +209,5 @@ function winnerOf(g) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { BALANCE, MODES, ROLES, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, letters, clueFits, clueKeys, nameClue, openRound, canKill, tally, resolveRound, winnerOf };
+  module.exports = { BALANCE, MODES, ROLES, SKIP, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, letters, clueFits, clueKeys, nameClue, openRound, canKill, tally, resolveRound, winnerOf };
 }

@@ -64,7 +64,7 @@ const STRINGS = {
     thrownOut: role => `Thrown out · ${role}`, dead: 'Dead', notKiller: 'Not a killer',
     noNotes: 'Clues, witness reports and cleared players will collect here.',
     rememberIt: 'Remember it. Tomorrow everyone will ask.',
-    vote: 'Vote', voteHint: 'Who do you think is a killer?',
+    vote: 'Vote', voteHint: 'Who do you think is a killer? Not sure? Skip.', skipVote: 'Skip vote',
     yourNotes: 'Your notes', player: 'Player', isSecretly: 'is secretly', nameN: i => `Name ${i}`,
     leaveBlank: 'Leave it blank to write nothing tonight. Tap again to unselect.',
     penRest: 'Your pen rests this round. You can write a name again next round.', penRestHint: 'Vote like everyone else.',
@@ -77,6 +77,7 @@ const STRINGS = {
     outTitle: name => `${name} is thrown out.`, outBody: (s, role) => `Top of the vote ${s} rounds in a row. They were a <b>${role}</b>.`,
     mostVotes: (name, c, s) => `<b>${name}</b> got the most votes. ${c} of ${s}.`,
     split: 'The vote was split. Nobody’s streak continues.',
+    skipped: 'Most of the table skipped the vote. Nobody topped it, and any streak is broken.',
     nothing: 'Nothing happened.', wrongName: name => `A name was written wrong. <b>${name}</b> is not a killer.`,
     nextRound: r => `Start round ${r}`, verdictBtn: 'See the verdict',
     solved: 'Solved', unsolved: 'Unsolved', townWins: 'Case closed.', killersWin: k => (k > 1 ? 'The killers got away.' : 'The killer got away.'),
@@ -90,8 +91,8 @@ const STRINGS = {
       ['The setup', 'Everyone gets a secret role and a secret name from the case. Killers know their own name and see the full list of names in play, with a few decoys mixed in.'],
       ['Talk', 'Each round opens with a story event, a true clue about a killer’s secret name, and a question everyone answers. Argue, accuse, defend yourself. Never say your secret name.'],
       ['Alibis', 'Every night you are somewhere with other people. If a killer writes a name, a witness might see someone slip away from their place, and the morning report will say where.'],
-      ['Secret turn', 'The phone goes around. Everyone votes. Killers write a secret name next to a player: if it matches, that player dies. The detective opens a case and learns a role a few rounds later.'],
-      ['Winning', 'Topping the vote enough rounds in a row gets a player thrown out. The town wins when every killer is gone. Killers win when they equal or outnumber everyone else.']
+      ['Secret turn', 'The phone goes around. Everyone votes or skips. Killers write a secret name next to a player: if it matches, that player dies. The detective opens a case and learns a role a few rounds later.'],
+      ['Winning', 'Topping the vote enough rounds in a row gets a player thrown out. If “skip” gets the most votes, nobody tops that round. The town wins when every killer is gone. Killers win when they equal or outnumber everyone else.']
     ]
   },
   ar: {
@@ -158,7 +159,7 @@ const STRINGS = {
     thrownOut: role => `مطرود · ${role}`, dead: 'ميت', notKiller: 'ليس قاتلاً',
     noNotes: 'هنا تتجمع الأدلة وتقارير الشهود وأسماء من ثبتت براءتهم.',
     rememberIt: 'تذكّر هذا. غداً سيسأل الجميع.',
-    vote: 'التصويت', voteHint: 'من تظن أنه قاتل؟',
+    vote: 'التصويت', voteHint: 'من تظن أنه قاتل؟ لست متأكداً؟ تخطَّ.', skipVote: 'تخطي التصويت',
     yourNotes: 'دفترك', player: 'اللاعب', isSecretly: 'اسمه السري', nameN: i => `الاسم ${i}`,
     leaveBlank: 'اتركه فارغاً لكي لا تكتب شيئاً الليلة. اضغط مرة أخرى لإلغاء الاختيار.',
     penRest: 'قلمك يرتاح هذه الجولة. يمكنك كتابة اسم في الجولة القادمة.', penRestHint: 'صوّت مثل الجميع.',
@@ -171,6 +172,7 @@ const STRINGS = {
     outTitle: name => `طُرد ${name}.`, outBody: (s, role) => `حصل على أعلى الأصوات ${s} جولات متتالية. كان <b>${role}</b>.`,
     mostVotes: (name, c, s) => `حصل <b>${name}</b> على أعلى الأصوات. ${c} من ${s}.`,
     split: 'انقسمت الأصوات. لا أحد يستمر في السلسلة.',
+    skipped: 'تخطّى معظم اللاعبين التصويت. لم يتصدّر أحد، وانكسرت أي سلسلة.',
     nothing: 'لم يحدث شيء.', wrongName: name => `كُتب اسم خاطئ. <b>${name}</b> ليس قاتلاً.`,
     nextRound: r => `ابدأوا الجولة ${r}`, verdictBtn: 'شاهدوا الحكم',
     solved: 'حُلّت', unsolved: 'لم تُحل', townWins: 'أُغلقت القضية.', killersWin: k => (k > 1 ? 'هرب القتلة.' : 'هرب القاتل.'),
@@ -184,8 +186,8 @@ const STRINGS = {
       ['البداية', 'يحصل كل لاعب على دور سري واسم سري من القضية. القتلة يعرفون أسماءهم ويرون قائمة كل الأسماء في اللعبة، ومعها بعض الأسماء الخادعة.'],
       ['النقاش', 'تبدأ كل جولة بحدث من القصة، ودليل صحيح عن اسم أحد القتلة، وسؤال يجيب عنه الجميع. جادلوا واتهموا ودافعوا عن أنفسكم. لا تقولوا أسماءكم السرية أبداً.'],
       ['حجج الغياب', 'كل ليلة تكون في مكان ما مع آخرين. إذا كتب قاتل اسماً، قد يرى شاهد أحدهم يتسلل من مكانه، ويذكر تقرير الصباح أين.'],
-      ['الدور السري', 'يمرّ الهاتف على الجميع. الكل يصوّت. يكتب القتلة اسماً سرياً بجانب لاعب: إن طابق، يموت ذلك اللاعب. ويفتح المحقق قضية ويعرف دوراً بعد بضع جولات.'],
-      ['الفوز', 'من يحصل على أعلى الأصوات جولات متتالية كافية يُطرد. تفوز المدينة عندما يرحل كل القتلة. ويفوز القتلة عندما يساوون الباقين أو يزيدون عليهم.']
+      ['الدور السري', 'يمرّ الهاتف على الجميع. الكل يصوّت أو يتخطى. يكتب القتلة اسماً سرياً بجانب لاعب: إن طابق، يموت ذلك اللاعب. ويفتح المحقق قضية ويعرف دوراً بعد بضع جولات.'],
+      ['الفوز', 'من يحصل على أعلى الأصوات جولات متتالية كافية يُطرد. وإن حصل «التخطي» على أعلى الأصوات، لا يتصدّر أحد تلك الجولة. تفوز المدينة عندما يرحل كل القتلة. ويفوز القتلة عندما يساوون الباقين أو يزيدون عليهم.']
     ]
   }
 };
