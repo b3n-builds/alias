@@ -85,6 +85,7 @@ const STRINGS = {
     skipped: 'Most of the table skipped the vote. Nobody topped it, and any streak is broken.',
     caseNeedsName: 'The case only opens if you name their secret name.',
     caseWrong: (name, alias) => `Your case on <b>${name}</b> didn’t open: they aren’t <b>${alias}</b>.`,
+    worlds: { all: 'All worlds', real: 'Real world', fantasy: 'Fantasy' },
     votesOpt: 'Votes',
     votesKind: { closed: ['Secret', 'Nobody sees anyone else’s vote.'], open: ['Open', 'The morning report shows who voted for whom.'] },
     abilities: {
@@ -258,6 +259,7 @@ const STRINGS = {
     skipped: 'تخطّى معظم اللاعبين التصويت. لم يتصدّر أحد، وانكسرت أي سلسلة.',
     caseNeedsName: 'لا تُفتح القضية إلا إذا ذكرت اسمه السري.',
     caseWrong: (name, alias) => `لم تُفتح قضيتك على <b>${name}</b>: ليس <b>${alias}</b>.`,
+    worlds: { all: 'كل العوالم', real: 'العالم الحقيقي', fantasy: 'خيال' },
     votesOpt: 'التصويت',
     votesKind: { closed: ['سري', 'لا أحد يرى تصويت غيره.'], open: ['علني', 'يعرض تقرير الصباح من صوّت لمن.'] },
     abilities: {

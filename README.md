@@ -7,7 +7,7 @@ Somebody is writing them down.
   The app tells you when a new version is out.
 - **Web (iPhone, laptop):** https://ben-dih.github.io/alias/
 
-21 cases in English and Arabic, three modes, and rules tuned with a bot simulator (see [BALANCE.md](BALANCE.md)).
+51 cases in English and Arabic (21 real-world, 30 fantasy), three modes, and rules tuned with a bot simulator (see [BALANCE.md](BALANCE.md)).
 
 ## Making a release
 

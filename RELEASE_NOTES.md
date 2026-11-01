@@ -1,4 +1,20 @@
-# ALIAS 1.3.1
+# ALIAS 1.4.0
+
+**30 new fantasy cases**, mostly dark, in English and Arabic. 51 cases in all.
+
+- **Classic high fantasy:** a wizard academy, a sleeping dragon’s hoard, a fort on a cursed forest, a castle under
+  dragon siege, a dwarf mine, a masked tournament, an elven court, a dead king’s wake.
+- **Sky and sea:** a sinking floating island, an airship above a storm, a city under a glass dome on the seabed, the
+  last lighthouse at the edge of the world, a town on a sea beast’s back, a sea-serpent hunters’ port, a monastery
+  above the clouds.
+- **Dark and gothic:** a vampire’s masked ball, a witches’ coven, a ghost ship, a cursed village, an abbey of silent
+  bells, the gravewardens of a city of the dead, a marsh of luring lights, a locked wax museum.
+- **Strange and dreamlike:** a clockwork city, a living forest, an inn inside a dream, an endless library, a house of
+  mirrors, a fae carnival, a desert melted to glass.
+- 8 Easy, 14 Medium, 8 Hard. Hard cases use look-alike names, as before.
+- **New case-picker filter:** All worlds / Real world / Fantasy. A random case picks from whichever world is selected.
+
+## 1.3.1
 
 Fixes from a full playtest by four AI players (transcript in `playtests/agent-game-1.md`):
 

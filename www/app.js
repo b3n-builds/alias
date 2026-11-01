@@ -7,7 +7,7 @@ const $app = document.getElementById('app');
 
 let S = {
   lang: 'en', muted: false, screen: 'home',
-  setup: { names: ['', '', '', ''], scenario: 'noir', mode: 'classic', killers: 'auto', minutes: 2, votes: 'closed', filter: 'all', step: 1 },
+  setup: { names: ['', '', '', ''], scenario: 'noir', mode: 'classic', killers: 'auto', minutes: 2, votes: 'closed', filter: 'all', world: 'all', step: 1 },
   game: null
 };
 let D = null; // the current player's private choices; never saved
@@ -167,7 +167,7 @@ function checkNames(names) {
 }
 function startGame() {
   const s = S.setup, names = s.names.map(n => n.trim());
-  S.game = newGame(names, { scenario: s.scenario, lang: S.lang, mode: s.mode, minutes: s.minutes, killers: s.killers, votes: s.votes });
+  S.game = newGame(names, { scenario: s.scenario, world: s.world, lang: S.lang, mode: s.mode, minutes: s.minutes, killers: s.killers, votes: s.votes });
   S.screen = 'game'; D = null; ui.quitArm = false; keepAwake();
 }
 
@@ -186,6 +186,7 @@ const ACT = {
     if (S.setup.step < 3) S.setup.step++; else startGame();
   },
   filter(b) { S.setup.filter = b.dataset.v; },
+  world(b) { S.setup.world = b.dataset.v; },
   pickCase(b) { S.setup.scenario = b.dataset.v; if (SCENARIOS[b.dataset.v]) S.setup.minutes = BALANCE.minutes[SCENARIOS[b.dataset.v].level]; },
   mode(b) { S.setup.mode = b.dataset.v; },
   killers(b) { S.setup.killers = b.dataset.v === 'auto' ? 'auto' : +b.dataset.v; },
@@ -215,7 +216,7 @@ const ACT = {
     if (D.step >= seq.length) D.task = true;
   },
   votes(b) { S.setup.votes = b.dataset.v; },
-  again(b, g) { S.game = newGame(g.players.map(p => p.name), { scenario: S.setup.scenario, lang: S.lang, mode: S.setup.mode, minutes: S.setup.minutes, killers: S.setup.killers, votes: S.setup.votes }); D = null; },
+  again(b, g) { S.game = newGame(g.players.map(p => p.name), { scenario: S.setup.scenario, world: S.setup.world, lang: S.lang, mode: S.setup.mode, minutes: S.setup.minutes, killers: S.setup.killers, votes: S.setup.votes }); D = null; },
   setup() { S.game = null; S.screen = 'setup'; S.setup.step = 1; },
   quit() { if (ui.quitArm) { S.game = null; D = null; S.screen = 'home'; } ui.quitArm = !ui.quitArm; },
   update() { if (ui.update) location.href = ui.update.url; },
@@ -336,8 +337,10 @@ const VIEWS = {
         ${n < 12 ? `<button class="btn ghost block" data-act="add">+ ${t.addPlayer}</button>` : ''}
         <p class="err" role="alert">${esc(ui.err)}</p>`;
     } else if (s.step === 2) {
-      const ids = Object.keys(SCENARIOS).filter(id => s.filter === 'all' || SCENARIOS[id].level === s.filter);
+      const world = s.world || 'all';
+      const ids = Object.keys(SCENARIOS).filter(id => (s.filter === 'all' || SCENARIOS[id].level === s.filter) && (world === 'all' || (SCENARIOS[id].world || 'real') === world));
       body = `${head}<h1 class="title">${t.stepCase}</h1>
+        <div class="seg" role="group">${['all', 'real', 'fantasy'].map(w => `<button data-act="world" data-v="${w}" aria-pressed="${world === w}">${t.worlds[w]}</button>`).join('')}</div>
         <div class="seg" role="group">${['all', 'Easy', 'Medium', 'Hard'].map(f => `<button data-act="filter" data-v="${f}" aria-pressed="${s.filter === f}">${t[f]}</button>`).join('')}</div>
         ${s.filter !== 'all' ? `<p class="muted small">${t.levelHint[s.filter]}</p>` : ''}
         <div class="cases">${ids.map(id => { const c = SCENARIOS[id], x = c[S.lang];

@@ -52,10 +52,12 @@ function killerCount(n, choice) {
   return Math.min(max, Math.max(1, want));
 }
 
-// settings: { scenario (id or 'random'), lang ('en'|'ar'), mode, minutes, killers ('auto'|1|2|3), votes ('closed'|'open') }
+// settings: { scenario (id or 'random'), world ('all'|'real'|'fantasy', for random), lang ('en'|'ar'), mode, minutes, killers ('auto'|1|2|3), votes ('closed'|'open') }
 function newGame(names, settings, rnd = Math.random) {
   const n = names.length, killers = killerCount(n, settings.killers);
-  const chosen = SCENARIOS[settings.scenario] ? settings.scenario : pick(Object.keys(SCENARIOS), rnd);
+  // 'random' picks from the chosen world (real or fantasy) when one is set
+  const cases = Object.keys(SCENARIOS).filter(id => !settings.world || settings.world === 'all' || (SCENARIOS[id].world || 'real') === settings.world);
+  const chosen = SCENARIOS[settings.scenario] ? settings.scenario : pick(cases.length ? cases : Object.keys(SCENARIOS), rnd);
   const sc = SCENARIOS[chosen], lang = settings.lang === 'ar' ? 'ar' : 'en', txt = sc[lang];
   const minutes = SCENARIOS[settings.scenario] ? settings.minutes : BALANCE.minutes[sc.level];
   const roles = shuffle(['detective', ...Array(killers).fill('killer'), ...Array(n - 1 - killers).fill('civilian')], rnd);

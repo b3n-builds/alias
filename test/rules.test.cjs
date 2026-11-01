@@ -12,7 +12,12 @@ const ok = (c, m) => { assert(c, m); checks++; };
 
 // content: every case is complete in both languages, names never collide after letter folding
 const ids = Object.keys(SCENARIOS);
-ok(ids.length >= 20, 'at least 20 cases');
+ok(ids.length >= 51, 'at least 51 cases');
+const fantasy = ids.filter(id => SCENARIOS[id].world === 'fantasy');
+ok(fantasy.length === 30 && ids.every(id => [undefined, 'fantasy'].includes(SCENARIOS[id].world)), '30 fantasy cases');
+const lv = l => fantasy.filter(id => SCENARIOS[id].level === l).length;
+ok(lv('Easy') === 8 && lv('Medium') === 14 && lv('Hard') === 8, 'fantasy difficulty split 8/14/8');
+for (let t = 0; t < 40; t++) ok(SCENARIOS[newGame(names(5), set(5, { scenario: 'random', world: 'fantasy' })).scenario].world === 'fantasy', 'random fantasy stays fantasy');
 for (const id of ids) for (const lang of ['en', 'ar']) {
   const t = SCENARIOS[id][lang];
   ok(t.names.length >= 12 + BALANCE.decoys[SCENARIOS[id].level], `${id}/${lang} names`);
