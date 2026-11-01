@@ -15,6 +15,10 @@
 //   lean to a Dark room and never pick Locked. Morning peek info is shared at the table: roommates of a killer
 //   who slipped out point at that room, sounds point at it more weakly, and lookout sightings or rumors that put
 //   someone in a killer's room point at that person.
+// - 1.3: innocents go to their task room 75% of the time and always finish it; killers sabotage the bar once it
+//   is 60% full; trackers follow their top suspect; guards, journalists and locksmiths pick at random; the lead
+//   searches a random room. Open votes and the search headcount are not modelled (people use them to catch room
+//   lies, which the bots do not tell).
 const { loadGame } = require('./load.cjs');
 
 function mulberry32(a) {
@@ -35,7 +39,7 @@ function play(G, n, settings, skill, rnd) {
   const know = {}; // killer -> per-player Set of possible names
   P.forEach((p, k) => { if (isK(k)) know[k] = P.map((_, i) => (i === k ? null : new Set(g.aliasList.filter(a => a !== p.alias)))); });
   const pub = new Array(N).fill(0), own = P.map(() => new Array(N).fill(0));
-  const investigated = new Set();
+  const investigated = new Set(), tried = {};
   let outed = null, night = { alibis: g.alibis, seen: [] }; // round 1 discusses the pre-game "last night"
   const st = { attempts: 0, kills: 0, firstDeath: null, ejectedKiller: 0, ejectedInnocent: 0 };
 
@@ -77,6 +81,7 @@ function play(G, n, settings, skill, rnd) {
       if (q.sound != null) point(q.sound, 1);
       if (q.look && killRooms.has(q.look.place)) { own[i][q.look.p] += 2; pub[q.look.p] += skill.catch; }
       if (q.rumor && killRooms.has(q.rumor.place)) pub[q.rumor.p] += 0.5 * skill.catch;
+      if (q.track && killRooms.has(q.track.place)) { own[i][q.track.p] += 2; pub[q.track.p] += skill.catch; }
     }
 
     // secret turns
@@ -87,8 +92,19 @@ function play(G, n, settings, skill, rnd) {
     for (const i of order) {
       const acting = isK(i) && G.canKill(g, i);
       if (acting) g.picks[i] = byPower('dark').length && rnd() < 0.7 ? byPower('dark')[0] : G.pick(free, rnd);
+      else if (!isK(i) && rnd() < TASK_GO) g.picks[i] = N.tasks[i].room; // innocents mostly go do their task
       else g.picks[i] = byPower('locked').length && rnd() < 0.4 ? byPower('locked')[0] : G.pick(N.rooms, rnd);
     }
+    // tasks, powers and the lead's search
+    g.taskDone = {}; g.acts = {}; g.sabotage = [];
+    for (const i of order) if (!isK(i)) g.taskDone[i] = true;
+    for (const i of order) if (P[i].power) {
+      const others = order.filter(j => j !== i);
+      if (P[i].power === 'locksmith') g.acts[i] = G.pick(N.rooms, rnd);
+      else if (P[i].power === 'tracker') g.acts[i] = others.reduce((b, j) => (pub[j] + own[i][j] > pub[b] + own[i][b] ? j : b), others[0]);
+      else g.acts[i] = G.pick(others, rnd);
+    }
+    g.search = G.pick(N.rooms, rnd);
     g.votes = {}; g.kills = [];
     for (const v of order) {
       const others = order.filter(j => j !== v && !P[j].cleared);
@@ -99,6 +115,7 @@ function play(G, n, settings, skill, rnd) {
     const attempts = [];
     for (const k of order.filter(isK)) {
       if (!G.canKill(g, k)) continue;
+      if (g.tasks.done >= g.tasks.goal * SAB_AT && rnd() < 0.6) { g.sabotage.push({ by: k, kind: 'bar' }); continue; } // fight the clock
       const taken = new Set();
       for (let s = 0; s < G.MODES[g.settings.mode].kills; s++) {
         const targets = order.filter(i => i !== k && !taken.has(i) && know[k][i].size);
@@ -124,7 +141,15 @@ function play(G, n, settings, skill, rnd) {
         const cands = order.filter(i => i !== det && !investigated.has(i) && !P[i].cleared);
         if (cands.length) {
           const t = cands.reduce((b, i) => (pub[i] + own[det][i] > pub[b] + own[det][b] ? i : b), cands[0]);
-          investigated.add(t); g.case = { target: t, round: g.round };
+          // the case only opens on the right secret name: guess among names that fit every clue so far
+          // (clues describe killers), skipping names already tried on this player
+          tried[t] = tried[t] || new Set();
+          const keys = g.notes.filter(x => x.kind === 'clue').map(x => x.key);
+          let pool = g.aliasList.filter(a => a !== P[det].alias && !tried[t].has(a));
+          const fitting = pool.filter(a => keys.every(k => G.clueFits(k, a)));
+          if (fitting.length) pool = fitting;
+          const guess = G.pick(pool, rnd);
+          if (G.openCase(g, t, guess)) investigated.add(t); else tried[t].add(guess);
         }
       }
     }
@@ -146,7 +171,8 @@ function play(G, n, settings, skill, rnd) {
 }
 const MODES_PENALTY = (G, g) => G.MODES[g.settings.mode].penalty;
 const WITNESS_WEIGHT = 2;
-const LEFT_WEIGHT = 2, PEEK_SHARE = 0.5; // how hard roommates push, and how much of a private hint the table believes
+const LEFT_WEIGHT = 2, PEEK_SHARE = 0.5;
+const TASK_GO = 0.75, SAB_AT = 0.6; // how often innocents go to their task room; when killers start sabotaging // how hard roommates push, and how much of a private hint the table believes
 
 function run(G, cfg, games, seed = 1) {
   const rnd = mulberry32(seed);

@@ -7,7 +7,7 @@ const $app = document.getElementById('app');
 
 let S = {
   lang: 'en', muted: false, screen: 'home',
-  setup: { names: ['', '', '', ''], scenario: 'noir', mode: 'classic', killers: 'auto', minutes: 2, filter: 'all', step: 1 },
+  setup: { names: ['', '', '', ''], scenario: 'noir', mode: 'classic', killers: 'auto', minutes: 2, votes: 'closed', filter: 'all', step: 1 },
   game: null
 };
 let D = null; // the current player's private choices; never saved
@@ -123,7 +123,14 @@ const sfx = {
 
 /* ---------- game flow ---------- */
 function draft(g) {
-  return { room: null, vote: null, kills: Array.from({ length: MODES[g.settings.mode].kills }, () => ({ t: null, a: null })), caseT: null, solved: null };
+  return { room: null, vote: null, act: null, sab: null, task: false, step: 0, caseA: null, kills: Array.from({ length: MODES[g.settings.mode].kills }, () => ({ t: null, a: null })), caseT: null, solved: null };
+}
+// a task's mini-game: 0 hold to finish, 1 enter a 3-digit code, 2 tap 1-4 in order (tiles shuffled by the task)
+function taskGame(task) {
+  const k = task.kind, kind = k % 3;
+  if (kind === 1) return { kind, seq: [k % 9 + 1, Math.floor(k / 9) % 9 + 1, Math.floor(k / 81) % 9 + 1], keys: [1, 2, 3, 4, 5, 6, 7, 8, 9] };
+  if (kind === 2) return { kind, seq: [1, 2, 3, 4], keys: [[1, 2, 3, 4], [3, 1, 4, 2], [2, 4, 1, 3], [4, 3, 2, 1]][Math.floor(k / 3) % 4] };
+  return { kind, seq: [], keys: [] };
 }
 function startTalk(g) { openRound(g); g.screen = 'talk'; ui.tab = 'report'; g.talkEnds = Date.now() + g.settings.minutes * 60000; keepAwake(); }
 function startTurns(g) {
@@ -144,8 +151,12 @@ function openTurn(g) {
 function commitTurn(g) {
   const me = g.order[g.idx];
   g.votes[me] = D.vote; g.picks[me] = D.room;
+  if (!g.acts) Object.assign(g, { acts: {}, taskDone: {}, sabotage: [] }); // games saved before 1.3
+  if (D.act !== null) g.acts[me] = D.act;
+  if (D.task) g.taskDone[me] = true;
+  if (D.sab && canKill(g, me)) { g.sabotage.push({ by: me, kind: D.sab }); D.kills = []; }
   if (canKill(g, me) && g.night.powers[D.room] !== 'locked') for (const k of D.kills) if (k.t !== null && k.a !== null) g.kills.push({ by: me, target: k.t, alias: k.a });
-  if (D.caseT !== null) g.case = { target: D.caseT, round: g.round };
+  if (D.caseT !== null && D.caseA !== null) openCase(g, D.caseT, D.caseA);
   D = null; g.shown = false;
   if (++g.idx >= g.order.length) { resolveRound(g); g.screen = 'morning'; }
 }
@@ -156,7 +167,7 @@ function checkNames(names) {
 }
 function startGame() {
   const s = S.setup, names = s.names.map(n => n.trim());
-  S.game = newGame(names, { scenario: s.scenario, lang: S.lang, mode: s.mode, minutes: s.minutes, killers: s.killers });
+  S.game = newGame(names, { scenario: s.scenario, lang: S.lang, mode: s.mode, minutes: s.minutes, killers: s.killers, votes: s.votes });
   S.screen = 'game'; D = null; ui.quitArm = false; keepAwake();
 }
 
@@ -187,13 +198,24 @@ const ACT = {
   pick(b) {
     const k = b.dataset.k, v = b.dataset.v;
     if (k === 'vote') D.vote = +v;
-    else if (k === 'room') D.room = +v;
+    else if (k === 'room') { D.room = +v; D.step = 0; }
+    else if (k === 'search') S.game.search = S.game.search === +v ? null : +v;
+    else if (k === 'act') D.act = D.act === +v ? null : +v;
+    else if (k === 'sab') D.sab = D.sab === v ? null : v;
     else if (k === 'case') D.caseT = D.caseT === +v ? null : +v;
+    else if (k === 'caseA') D.caseA = D.caseA === v ? null : v;
     else { const slot = D.kills[+k.slice(2)], f = k[1], val = f === 't' ? +v : v; slot[f] = slot[f] === val ? null : val; }
   },
   done(b, g) { commitTurn(g); },
-  next(b, g) { if (g.winner) g.screen = 'end'; else startPeek(g); },
-  again(b, g) { S.game = newGame(g.players.map(p => p.name), { scenario: S.setup.scenario, lang: S.lang, mode: S.setup.mode, minutes: S.setup.minutes, killers: S.setup.killers }); D = null; },
+  next(b, g) { if (g.winner) g.screen = 'end'; else if (g.report.lights) startTalk(g); else startPeek(g); },
+  taskHold() { D.task = true; },
+  taskTap(b, g) {
+    const seq = taskGame(g.night.tasks[g.order[g.idx]]).seq;
+    D.step = +b.dataset.v === seq[D.step] ? D.step + 1 : 0;
+    if (D.step >= seq.length) D.task = true;
+  },
+  votes(b) { S.setup.votes = b.dataset.v; },
+  again(b, g) { S.game = newGame(g.players.map(p => p.name), { scenario: S.setup.scenario, lang: S.lang, mode: S.setup.mode, minutes: S.setup.minutes, killers: S.setup.killers, votes: S.setup.votes }); D = null; },
   setup() { S.game = null; S.screen = 'setup'; S.setup.step = 1; },
   quit() { if (ui.quitArm) { S.game = null; D = null; S.screen = 'home'; } ui.quitArm = !ui.quitArm; },
   update() { if (ui.update) location.href = ui.update.url; },
@@ -271,6 +293,8 @@ function alibiText(g, a) {
   return a.others ? t.alibiWith(place, a.others) : t.alibiAlone(place);
 }
 const placeName = (g, i) => esc(txt(g).places[i]);
+const taskBar = g => g.tasks ? `<div class="taskbar"><p class="label">${T().taskBar(g.tasks.done, g.tasks.goal)}</p>
+  <div class="track"><i style="width:${Math.min(100, Math.round(100 * g.tasks.done / g.tasks.goal))}%"></i></div></div>` : '';
 // where a name was written from (-1: the Dark room), or where a witness saw someone slip away
 const noteText = (g, n) => n.kind === 'from' ? (n.place < 0 ? T().writtenDark : T().writtenFrom(placeName(g, n.place))) : T().witness(placeName(g, n.place));
 
@@ -333,6 +357,9 @@ const VIEWS = {
           <p class="muted small">${t.autoHint(auto, n)} ${t.killerCap(n)}</p></div>
         <div class="section"><p class="label">${t.talkTime}</p>${s.scenario === 'random' ? `<p class="muted small">${t.caseTime}</p>`
           : `<div class="stepper"><button data-act="min" data-d="-1" aria-label="−">−</button><output>${t.minutes(s.minutes)}</output><button data-act="min" data-d="1" aria-label="+">+</button></div>`}</div>
+        <div class="section"><p class="label">${t.votesOpt}</p>
+          <div class="seg" role="group">${['closed', 'open'].map(v => `<button data-act="votes" data-v="${v}" aria-pressed="${(s.votes || 'closed') === v}">${t.votesKind[v][0]}</button>`).join('')}</div>
+          <p class="muted small">${t.votesKind[s.votes || 'closed'][1]}</p></div>
         <div class="rules-box"><p class="label" style="display:block">${t.tableRules}</p><p>${t.ruleStreak(streak)}</p>${gap ? `<p>${t.ruleGap}</p>` : ''}</div>`;
     }
     return { bar: bar(), body, dock };
@@ -353,10 +380,10 @@ const VIEWS = {
     if (!g.shown) return { bar: bar(t.caseFile(g.idx + 1, g.players.length)), ...cover(g, p, g.idx, t.caseFile(g.idx + 1, g.players.length), g.idx, g.players.length) };
     const r = t.roleDesc, k = g.settings.killers;
     const desc = p.role === 'killer' ? [r.killer, g.killGap > 1 ? r.killerGap : '', k > 1 ? r.killerMany(k) : ''].filter(Boolean).join(' ')
-      : p.role === 'detective' ? r.detective(g.caseRounds) : r.civilian;
+      : p.role === 'detective' ? r.detective(g.caseRounds) : r.civilian + (p.power ? ' ' + t.abilities[p.power][1] : '');
     return { bar: bar(t.caseFile(g.idx + 1, g.players.length)), body: `<article class="file" data-paper="${sc.look.paper}">${emblem(g.scenario, 'wm')}<div class="tab">${t.confidential} · ${esc(p.name)}</div>
         <p class="label">${t.secretName}</p><h2 class="alias">${esc(p.alias)}</h2>
-        <p class="label">${t.yourRole}</p><p class="stamp ${p.role}">${ico(p.role)}${t.roles[p.role]}</p>
+        <p class="label">${t.yourRole}</p><p class="stamp ${p.role}">${ico(p.role)}${t.roles[p.role]}${p.power ? ' · ' + t.abilities[p.power][0] : ''}</p>
         <p>${desc}</p>
         <p class="alibi"><span class="label">${t.lastNight}</span><br>${alibiText(g, g.alibis[g.idx])}</p>
         <p class="warn">${ico('eyeoff')}${t.neverSay}</p></article>`,
@@ -379,6 +406,9 @@ const VIEWS = {
         ${g.night ? `<section class="card rooms-card"><p class="label">${t.tonightRooms}</p><ul class="rooms">${g.night.rooms.map(r => { const pw = g.night.powers[r];
           return `<li><b>${placeName(g, r)}</b>${pw ? `<span class="tag">${t.powers[pw][0]}</span><small class="muted">${t.powers[pw][1]}</small>` : ''}</li>`; }).join('')}</ul>
           <p class="muted small">${t.roomsHint}</p></section>` : ''}
+        ${g.lead != null && g.night ? `<section class="card rooms-card"><p class="label">${t.leadTitle}</p><p>${t.leadPick(esc(g.players[g.lead].name))}</p>
+          ${chips('search', g.night.rooms.map(r => ({ v: r, label: txt(g).places[r] })), g.search)}</section>` : ''}
+        ${taskBar(g)}
         ${ev.dare != null ? `<section class="question"><p class="label">${t.dareLabel}</p><p class="q">${t.dares[ev.dare % t.dares.length]}</p></section>` : ''}
         ${pressure}`;
     } else if (tab === 'names') {
@@ -430,21 +460,43 @@ const VIEWS = {
           <p class="sub">${D.kills.length > 1 ? t.nameN(k + 1) + ' · ' : ''}${t.player}</p>${chips('kt' + k, others, s.t)}
           <p class="sub">${t.isSecretly}</p>${chips('ka' + k, g.aliasList.map(a => ({ v: a, label: a })), s.a)}`).join('<hr>')}
         <p class="muted small">${t.leaveBlank}</p>${clues}</section>`;
+      if (D.sab) extra = `<section class="panel notes"><h3>${ico('killer')}${t.yourNotes}</h3><p>${t.sabChosen}</p>${clues}</section>`;
+      extra += `<section class="panel"><h3>${ico('bolt')}${t.sabTitle}</h3>${chips('sab', ['bar', 'lights'].map(v => ({ v, label: t.sab[v][0] })), D.sab)}${D.sab ? `<p class="small">${t.sab[D.sab][1]}</p>` : ''}</section>`;
     } else if (p.role === 'detective') {
       const solved = D.solved !== null ? g.caseLog[D.solved] : null;
       let body = solved ? `<p class="result">${t.caseClosed(esc(g.players[solved.target].name), t.roles[solved.role])}</p>` : '';
       if (g.case) body += `<p>${t.caseOpen(esc(g.players[g.case.target].name), g.caseRounds - (g.round - g.case.round))}</p>`;
-      else body += `<p class="sub">${t.newCase}</p>${chips('case', others, D.caseT)}<p class="muted small">${t.roleArrives(g.caseRounds)}</p>`;
+      else body += `<p class="sub">${t.newCase}</p>${chips('case', others, D.caseT)}<p class="sub">${t.isSecretly}</p>${chips('caseA', g.aliasList.map(a => ({ v: a, label: a })), D.caseA)}
+        <p class="muted small">${t.caseNeedsName} ${t.roleArrives(g.caseRounds)}</p>`;
+      const miss = g.caseFail && g.caseFail.round === g.round - 1 ? g.caseFail : null;
+      if (miss) body = `<p class="result">${t.caseWrong(esc(g.players[miss.target].name), esc(miss.alias))}</p>` + body;
       const past = g.caseLog.filter((_, i) => i !== D.solved);
       if (past.length) body += `<p class="sub">${t.pastResults}</p>${past.map(c => `<p class="small">${esc(g.players[c.target].name)}: ${t.roles[c.role]}</p>`).join('')}`;
       extra = `<section class="panel"><h3>${ico('detective')}${t.caseBoard}</h3>${body}</section>`;
     }
-    const ok = D.room !== null && D.vote !== null && (locked || D.kills.every(s => (s.t === null) === (s.a === null)));
+    const task = N.tasks && N.tasks[me];
+    let taskHtml = '';
+    if (task) {
+      const tg = taskGame(task), here = D.room === task.room;
+      let game;
+      if (D.task) game = `<p class="result">${t.taskDone}</p>`;
+      else if (!here) game = `<p class="muted small">${t.taskAway(placeName(g, task.room))}</p>`;
+      else if (tg.kind === 0) game = `<button class="btn secondary block hold" data-act="taskHold"><span>${t.taskHold}</span></button>`;
+      else game = `<p class="small">${tg.kind === 1 ? t.taskCode(tg.seq.join(' ')) : t.taskOrder(tg.seq.length)}</p>
+        <div class="keys">${tg.keys.map(k => `<button class="key" data-act="taskTap" data-v="${k}" aria-pressed="${tg.kind === 2 && k <= D.step}">${k}</button>`).join('')}</div>
+        ${tg.kind === 1 ? `<p class="muted small">${t.taskProgress(D.step, tg.seq.length)}</p>` : ''}`;
+      taskHtml = `<section class="panel"><h3>${ico('check')}${t.taskTitle}</h3><p>${t.taskAt(t.taskNames[task.kind % t.taskNames.length], placeName(g, task.room))}</p>
+        ${p.role === 'killer' ? `<p class="muted small">${t.taskFake}</p>` : ''}${game}</section>`;
+    }
+    const powerHtml = p.power ? `<section class="panel"><h3>${ico('detective')}${t.abilities[p.power][0]}</h3><p class="muted small">${t.abilities[p.power][1]} ${t.powerHint}</p>
+      ${chips('act', p.power === 'locksmith' ? N.rooms.map(r => ({ v: r, label: txt(g).places[r] })) : others, D.act)}</section>` : '';
+    const ok = D.room !== null && D.vote !== null && (locked || D.sab || D.kills.every(s => (s.t === null) === (s.a === null))) && (D.caseT === null) === (D.caseA === null);
     return { bar: bar(t.secretTurn(g.idx + 1, g.order.length)), body: `<div class="me" data-paper="${sc.look.paper}">${ico(p.role)}<div><b>${esc(p.alias)}</b><small>${esc(p.name)} · ${t.roles[p.role]}</small></div></div>
         <section class="panel"><h3>${ico('pin')}${t.pickRoom}</h3><p class="muted small">${p.role === 'killer' ? t.pickRoomKiller : t.pickRoomHint}</p>${chips('room', rooms, D.room)}
           ${power(D.room) ? `<p class="small">${t.powers[power(D.room)][1]}</p>` : ''}</section>
+        ${taskHtml}
         <section class="panel"><h3>${ico('vote')}${t.vote}</h3><p class="muted small">${t.voteHint}</p>${chips('vote', [...others, { v: SKIP, label: t.skipVote }], D.vote)}</section>
-        ${extra}`,
+        ${powerHtml}${extra}`,
       dock: `<button class="btn primary block" data-act="done" ${ok ? '' : 'disabled'}>${t.done}</button>` };
   },
 
@@ -460,8 +512,11 @@ const VIEWS = {
     else if (r.top !== null) vote = item('vote', 'vote', `${t.mostVotes(esc(P[r.top].name), r.count, g.streakLen)} ${strikes(r.count, g.streakLen)}`);
     else vote = item('vote', 'vote', r.skipped ? t.skipped : t.split);
     const clears = r.clears.map(i => item('clue', 'check', t.wrongName(esc(P[i].name)))).join('');
+    const extras = [...(r.sabotage || []).map(k => item('dead', 'bolt', t.sabNews[k])),
+      r.search ? item('seen', 'pin', t.searchResult(placeName(g, r.search.place), r.search.count)) : '',
+      r.votes ? item('vote', 'vote', `<big>${t.votesTitle}</big>${Object.entries(r.votes).map(([a, b]) => esc(P[a].name) + ' → ' + (+b === SKIP ? t.skipVote : esc(P[b].name))).join('<br>')}`) : ''].join('');
     return { bar: bar(t.morning(r.round)), body: `<section class="dawn">${ico('sun')}<p class="label">${t.morning(r.round)}</p><h1>${t.morningTitle}</h1></section>
-      <div class="report">${night}${seen}${vote}${clears}</div>`,
+      <div class="report">${night}${seen}${extras}${vote}${clears}</div>${taskBar(g)}`,
       dock: `<button class="btn primary block" data-act="next">${g.winner ? t.verdictBtn : t.nextRound(g.round)}</button>` };
   },
 
@@ -477,6 +532,10 @@ const VIEWS = {
     if (q.sound != null) rows.push(line('sound', t.peekSound(placeName(g, q.sound))));
     if (q.look) rows.push(line('seen', t.peekLook(name(q.look.p), placeName(g, q.look.place))));
     if (q.rumor) rows.push(line('vote', t.peekRumor(name(q.rumor.p), placeName(g, q.rumor.place))));
+    if (q.tasksHere) rows.push(line('check', t.peekTasks(q.tasksHere)));
+    if (q.track) rows.push(line('pin', t.peekTrack(name(q.track.p), placeName(g, q.track.place))));
+    if (q.heard) rows.push(line('vote', t.peekHeard(name(q.heard.p), +q.heard.v === SKIP ? t.skipVote : name(q.heard.v))));
+    if (q.saved != null) rows.push(line('check', t.peekSaved(name(q.saved))));
     if (q.cover) rows.push(line('killer', (q.cover.alone ? t.coverAlone : t.coverCrowd)(placeName(g, q.cover.place))));
     return { bar: bar(step), body: `<section class="dawn">${ico('seen')}<p class="label">${step}</p><h1>${t.peekTitle}</h1></section>
       <div class="report">${rows.join('')}</div><p class="muted small">${t.peekHint}</p>`,
@@ -487,7 +546,7 @@ const VIEWS = {
     const g = S.game, t = T(), town = g.winner === 'town';
     const decoys = g.aliasList.filter(a => !g.players.some(p => p.alias === a));
     return { bar: bar(), body: `<p class="verdict-stamp ${g.winner}">${town ? t.solved : t.unsolved}</p>
-      <h1 class="verdict">${town ? t.townWins : t.killersWin(g.settings.killers)}</h1><p class="muted">${town ? t.townSub : t.killersSub}</p>
+      <h1 class="verdict">${town ? t.townWins : t.killersWin(g.settings.killers)}</h1><p class="muted">${g.winBy === 'tasks' ? t.townTasks : town ? t.townSub : t.killersSub}</p>
       <div class="files-wrap"><table class="files"><thead><tr><th>${t.colPlayer}</th><th>${t.colName}</th><th>${t.colRole}</th><th>${t.colFate}</th></tr></thead><tbody>
         ${g.players.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.alias)}</td><td class="${p.role === 'killer' ? 'k' : ''}">${t.roles[p.role]}</td>
           <td>${t.fate[p.alive ? 'alive' : p.out]}</td></tr>`).join('')}</tbody></table></div>

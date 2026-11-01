@@ -334,3 +334,11 @@ html[dir="rtl"] .ev { border-radius: 14px 6px 6px 14px; }
 .rooms li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .rooms .tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); }
 .rooms small { flex-basis: 100%; }
+
+/* task bar, task mini-game keys */
+.taskbar { display: grid; gap: 6px; margin-top: 4px; }
+.taskbar .track { height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--fg) 12%, transparent); overflow: hidden; }
+.taskbar .track i { display: block; height: 100%; background: var(--good); border-radius: inherit; transition: width .4s ease; }
+.keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; margin: 8px 0; }
+.key { min-height: 48px; border-radius: 12px; border: 1px solid var(--rule); background: var(--surface); color: var(--fg); font: inherit; font-size: 20px; font-weight: 700; }
+.key[aria-pressed="true"] { background: var(--good); color: var(--bg); border-color: transparent; }

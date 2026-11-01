@@ -2,7 +2,7 @@
 const assert = require('assert');
 const { loadGame } = require('../sim/load.cjs');
 const G = loadGame();
-const { SCENARIOS, BALANCE, SKIP, planNight, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
+const { SCENARIOS, BALANCE, SKIP, ABILITIES, planNight, openCase, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
 const names = n => Array.from({ length: n }, (_, i) => 'P' + i);
 const roleIdx = (g, r) => g.players.map((p, i) => (p.role === r ? i : -1)).filter(i => i >= 0);
 const set = (n, extra = {}) => ({ scenario: 'noir', lang: 'en', mode: 'classic', minutes: 2, killers: 'auto', ...extra });
@@ -89,6 +89,67 @@ for (let t = 0; t < 40; t++) {
   ok(crowded === 400 && plain > 120 && plain < 280, 'crowded doubles the witness chance');
 }
 BALANCE.notice = noticeChance;
+
+// 1.3: powers for every civilian, tasks, sabotage, lead search, open votes
+for (const votes of ['closed', 'open']) for (let n = 4; n <= 12; n++) {
+  const g = newGame(names(n), set(n, { votes }));
+  const civ = g.players.filter(p => p.role === 'civilian');
+  ok(civ.every(p => ABILITIES.includes(p.power)) && g.players.every(p => p.role === 'civilian' || !p.power), 'civilians and only civilians have powers');
+  if (votes === 'open') ok(!civ.some(p => p.power === 'journalist'), 'no journalist with open votes');
+  ok(new Set(civ.map(p => p.power)).size === Math.min(civ.length, votes === 'open' ? 3 : 4), 'powers spread before repeating');
+  ok(g.tasks.goal === BALANCE.taskGoal(n - g.settings.killers), 'task goal');
+}
+{
+  // a plain six-player night; everyone stands in their task room and finishes it
+  const setupNight = (extra = {}) => {
+    const g = newGame(names(6), set(6, extra)), k = roleIdx(g, 'killer')[0];
+    planNight(g); g.night.powers = {};
+    g.players.forEach((p, i) => { g.picks[i] = g.night.tasks[i].room; g.taskDone[i] = true; });
+    return { g, k, inn: g.players.map((_, i) => i).filter(i => i !== k) };
+  };
+  let { g, k, inn } = setupNight();
+  resolveRound(g);
+  ok(g.tasks.done === inn.length, 'innocent tasks count, killer tasks are fake');
+  ({ g, k, inn } = setupNight()); g.picks[inn[0]] = g.night.rooms.find(r => r !== g.night.tasks[inn[0]].room); resolveRound(g);
+  ok(g.tasks.done === inn.length - 1, 'a task only counts in its room');
+  ({ g, k, inn } = setupNight()); g.sabotage = [{ by: k, kind: 'bar' }]; resolveRound(g);
+  ok(g.tasks.done === Math.max(0, inn.length - BALANCE.sabotage(6)) && g.report.sabotage[0] === 'bar' && g.players[k].lastKill === 1, 'bar sabotage undoes tasks and rests the pen');
+  ({ g, k } = setupNight()); g.sabotage = [{ by: k, kind: 'lights' }]; resolveRound(g);
+  ok(g.report.lights, 'lights sabotage skips the peek');
+  // guard saves a right name; the guard hears about it
+  ({ g, k, inn } = setupNight());
+  const guard = inn.find(i => g.players[i].power === 'guard') ?? inn[0];
+  g.players[guard].power = 'guard'; const target = inn.find(i => i !== guard);
+  g.acts[guard] = target; g.kills = [{ by: k, target, alias: g.players[target].alias }]; resolveRound(g);
+  ok(g.players[target].alive && g.report.dead.length === 0 && g.report.from.length === 0 && g.peek[guard].saved === target, 'guard saves and knows');
+  // locksmith locks the killer's room: no kill
+  ({ g, k, inn } = setupNight());
+  g.players[inn[0]].power = 'locksmith'; g.acts[inn[0]] = g.picks[k];
+  g.kills = [{ by: k, target: inn[1], alias: g.players[inn[1]].alias }]; resolveRound(g);
+  ok(g.players[inn[1]].alive && g.players[k].lastKill == null, 'locksmith blocks the killer');
+  // tracker and journalist see the truth
+  ({ g, k, inn } = setupNight());
+  g.players[inn[0]].power = 'tracker'; g.acts[inn[0]] = k; g.players[inn[1]].power = 'journalist'; g.acts[inn[1]] = k;
+  g.votes = { [k]: inn[2] }; resolveRound(g);
+  ok(g.peek[inn[0]].track.place === g.alibis[k].place && g.peek[inn[1]].heard.v === inn[2], 'tracker and journalist see the truth');
+  // lead search, open votes, lead rotation
+  ({ g, k, inn } = setupNight({ votes: 'open' }));
+  g.search = g.picks[k]; g.votes = { [inn[0]]: k }; resolveRound(g);
+  ok(g.report.search.count === Object.values(g.alibis).filter(a => a.place === g.report.search.place).length, 'search counts the real room');
+  ok(g.report.votes[inn[0]] === k, 'open votes are reported');
+  ({ g } = setupNight()); openRound(g); const first = g.lead; g.round++; openRound(g);
+  ok(first === 0 && g.lead === 1 && g.search === null, 'lead rotates in seat order');
+  // a full bar wins for the town while killers live
+  ({ g, k, inn } = setupNight()); g.tasks.done = g.tasks.goal - 1; resolveRound(g);
+  ok(g.winner === 'town' && g.winBy === 'tasks', 'task win');
+}
+
+// the detective opens a case only with the right secret name
+{
+  const g = newGame(names(6), set(6)), t = roleIdx(g, 'civilian')[0];
+  ok(!openCase(g, t, 'not a name') && g.case === null && g.caseFail.target === t, 'wrong name opens nothing');
+  ok(openCase(g, t, g.players[t].alias) && g.case.target === t && g.caseFail === null, 'right name opens the case');
+}
 
 // the table question asks about a place a witness named, else a place someone was last night
 for (let t = 0; t < 50; t++) {

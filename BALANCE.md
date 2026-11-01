@@ -44,15 +44,15 @@ not as exact win rates.
    10–12. You can still pick 1, 2 or 3 yourself (capped so each killer faces at least two innocents).
 3. **Your "kill every 2 rounds" rule for big games stays**, starting at 7 players. On its own it made big games
    unwinnable for killers (one killer, half the attempts, ~10 people to remove), which is why it comes with more killers.
-4. **Vote streak by table size:** thrown out after 2 straight top votes at 4 players, 4 at 6, 9 and 12, 3 elsewhere.
+4. **Vote streak by table size:** thrown out after this many straight top votes: 4 players 2, 5: 4, 6: 6, 7: 3, 8: 4, 9: 6, 10: 3, 11: 4, 12: 5.
    The odd pattern is deliberate: player-count parity swings these sizes (re-tuned for rooms in 1.1).
 5. **Difficulty now means "how hard the case is for the town":**
 
    | Level  | Decoy names | Detective result after | Witness chance |
    |--------|-------------|------------------------|----------------|
-   | Easy   | 4           | 2 rounds               | 35%            |
-   | Medium | 3           | 3 rounds               | 25%            |
-   | Hard   | 3           | 4 rounds               | 15%            |
+   | Easy   | 4           | 2 rounds               | 13%            |
+   | Medium | 3           | 3 rounds               | 10%            |
+   | Hard   | 3           | 4 rounds               | 7%             |
 
    Hard cases also use look-alike names (Nova / Nova Two, Theon the Elder / Theon the Younger).
 6. **Witness chance is scaled down at 6 and 9 players and up at 11**, where one report was too decisive or too rare.
@@ -69,6 +69,20 @@ not as exact win rates.
    there can call the lie. Misses still only risk a witness. To keep killers in the game, roommates now notice
    someone slipping out 15% of the time (was 30%; the named room does most of that job now) and 12 players use a
    4-round streak.
+9. **Powers, tasks, sabotage, lead search, open votes (1.3).** Playtesters still had little to talk about. Research
+   pointed the same way every time: in games people never stop talking about, everyone has something to do
+   (Blood on the Clocktower gives every player an ability), tasks give innocents a goal and claims to check
+   (Among Us), public records give evidence (Avalon's vote record), and someone has to make a call they get blamed
+   for (Secret Hitler). So every civilian now has a power (Guard, Tracker, Journalist, Locksmith), everyone has a
+   task, killers can sabotage instead of killing, a rotating lead picks a room whose real headcount is published,
+   and votes can be open. All of that is information for the town, and the first simulation had killers winning
+   0–34%. The dials that brought it back: a long task race (12 finished tasks per innocent, so tasks are a backup
+   win), much quieter passive information (witness 10% on Medium, roommates notice 5%, sounds 5%), and longer
+   vote streaks. Killers writing a name every round in big games would have helped too, but that would break
+   the every-other-round rule you asked for, so it stays.
+10. **The detective must name the secret name to open a case (1.3).** A wrong name opens nothing, and the
+   detective learns that player is not that name. The bot detective guesses among names that fit every clue so
+   far; that cost the town a few points, still inside the target range.
 
 ## What deliberately did not change
 
@@ -79,21 +93,20 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 | Players         | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
 |-----------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| Easy            | 42% | 35% | 33% | 52% | 30% | 37% | 61% | 46% | 58% |
-| Medium          | 48% | 43% | 40% | 55% | 38% | 43% | 64% | 50% | 61% |
-| Hard            | 49% | 46% | 40% | 58% | 40% | 39% | 66% | 51% | 60% |
-| Avg. rounds (M) | 3.1 | 4.8 | 6.3 | 8.1 | 9.3 | 12  | 11  | 12  | 15  |
+| Easy            | 42% | 43% | 38% | 48% | 44% | 44% | 58% | 57% | 54% |
+| Medium          | 45% | 46% | 45% | 50% | 46% | 45% | 54% | 56% | 50% |
+| Hard            | 44% | 48% | 42% | 53% | 44% | 46% | 54% | 49% | 50% |
+| Avg. rounds (M) | 3.5 | 6.2 | 8.5 | 8.3 | 11  | 14  | 11  | 14  | 17  |
 
-- Penalty mode leans to the town (24–55% killer wins); Frenzy leans to the killers (69–94%). The setup screen says so.
+- Penalty mode leans to the town (29–41% killer wins); Frenzy leans to the killers (61–96%). The setup screen says so.
 - A sharp table beats killers most of the time and a casual one loses to them. Skill matters, which is healthy.
 
 ## Known limits
 
-- Big games run long (10–14 rounds at 10+ players), mostly because of the every-other-round rule.
+- Big games run long (14–17 rounds at 9+ players), because of the every-other-round rule and the long vote
+  streaks it needs. This is the main thing to watch at a real table.
   If that drags, the first thing to try is 1-minute talk time, or turning the rule off for 7–9 players.
 - Small tables (4–5 players) are swingy in every game of this kind.
-- 10 players lean to the killers (~64%). The streak dial jumps from 32% (2) to 64% (3) there, and fewer rooms or
-  two killers did not help; the closer side was kept.
 - The bots pick rooms simply (random, leaning Locked for innocents and Dark for acting killers). Real killers who
   choose empty rooms on purpose will do better than the bots; watch for that.
 - 1.0.3 playtest fix: at 4 players everyone used to share one alibi place, which made witness reports useless.

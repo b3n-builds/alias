@@ -4,7 +4,7 @@
 // Balance knobs, tuned with sim/simulate.cjs (see BALANCE.md for the reasoning).
 const BALANCE = {
   // Table-size rules. Uneven on purpose: player-count parity swings these games (see BALANCE.md).
-  streak: n => (n === 4 ? 2 : [6, 9, 12].includes(n) ? 4 : 3), // top the vote this many rounds in a row to be thrown out
+  streak: n => ({ 4: 2, 5: 4, 6: 6, 7: 3, 8: 4, 9: 6, 10: 3, 11: 4, 12: 5 })[n] || 3, // top the vote this many rounds in a row to be thrown out
   killGap: n => (n >= 7 ? 2 : 1), // big games: a killer waits a round after writing a name
   killers: n => (n >= 10 ? 3 : n >= 7 ? 2 : 1), // 'Auto' killer count (about √n, as in Mafia)
   witnessScale: n => (n === 6 || n === 9 ? 0.4 : n === 11 ? 1.5 : 1),
@@ -13,13 +13,18 @@ const BALANCE = {
   caseRounds: { Easy: 2, Medium: 3, Hard: 4 },
   minutes: { Easy: 3, Medium: 2, Hard: 2 },
   clueShare: [0.3, 0.7], // a clue should rule out roughly a third to two thirds of the names still possible
-  witness: { Easy: 0.35, Medium: 0.25, Hard: 0.15 }, // chance a killer who writes a name is seen slipping away
+  witness: { Easy: 0.13, Medium: 0.1, Hard: 0.07 }, // chance a killer who writes a name is seen slipping away
   rooms: n => Math.min(7, Math.max(2, Math.ceil(n / 2))), // rooms open each night
   powers: n => (n >= 6 ? 2 : 1), // how many of them have a power
-  notice: 0.15, // chance each roommate notices a killer slipping out
-  sound: 0.1, // chance an innocent elsewhere hears the room a killer slipped out of
-  rumorTrue: 2 / 3
+  notice: 0.05, // chance each roommate notices a killer slipping out
+  sound: 0.05, // chance an innocent elsewhere hears the room a killer slipped out of
+  rumorTrue: 2 / 3,
+  taskGoal: innocents => Math.round(innocents * 12), // finished tasks for a town task win (a long race, by request)
+  sabotage: n => Math.ceil(n / 3) // tasks a sabotage knocks off the bar
 };
+// every civilian gets one: guard (protect a player), tracker (learn a player's room),
+// journalist (learn a player's vote; closed votes only), locksmith (lock a room)
+const ABILITIES = ['guard', 'tracker', 'journalist', 'locksmith'];
 // lookout: learn where one other person was; locked: nobody slips out; dark: no witness; crowded: witness chance doubles
 const POWERS = ['lookout', 'locked', 'dark', 'crowded'];
 const MODES = {
@@ -46,7 +51,7 @@ function killerCount(n, choice) {
   return Math.min(max, Math.max(1, want));
 }
 
-// settings: { scenario (id or 'random'), lang ('en'|'ar'), mode, minutes, killers ('auto'|1|2|3) }
+// settings: { scenario (id or 'random'), lang ('en'|'ar'), mode, minutes, killers ('auto'|1|2|3), votes ('closed'|'open') }
 function newGame(names, settings, rnd = Math.random) {
   const n = names.length, killers = killerCount(n, settings.killers);
   const chosen = SCENARIOS[settings.scenario] ? settings.scenario : pick(Object.keys(SCENARIOS), rnd);
@@ -56,7 +61,7 @@ function newGame(names, settings, rnd = Math.random) {
   const pool = shuffle(txt.names, rnd);
   const g = {
     v: 3, lang, scenario: chosen,
-    settings: { mode: settings.mode in MODES ? settings.mode : 'classic', minutes, killers },
+    settings: { mode: settings.mode in MODES ? settings.mode : 'classic', minutes, killers, votes: settings.votes === 'open' ? 'open' : 'closed' },
     streakLen: BALANCE.streak(n), killGap: BALANCE.killGap(n), caseRounds: BALANCE.caseRounds[sc.level],
     witness: Math.min(1, BALANCE.witness[sc.level] * BALANCE.witnessScale(n)),
     screen: 'story', round: 1, idx: 0, shown: false,
@@ -64,8 +69,12 @@ function newGame(names, settings, rnd = Math.random) {
     aliasList: shuffle(pool.slice(0, n + BALANCE.decoys[sc.level]), rnd),
     beats: shuffle(range(txt.beats.length), rnd), dareBase: Math.floor(rnd() * 1000), night: null, picks: {}, peek: {},
     order: [], votes: {}, kills: [], case: null, caseLog: [], streak: null, notes: [], usedClues: [], event: null,
-    alibis: {}, report: null, winner: null, talkEnds: 0
+    alibis: {}, report: null, winner: null, talkEnds: 0,
+    tasks: { done: 0, goal: BALANCE.taskGoal(n - killers) }, taskDone: {}, acts: {}, sabotage: [], lead: null, search: null
   };
+  // powers go round the civilians in a shuffled cycle, so a table gets a spread before any repeats
+  const kit = shuffle(ABILITIES.filter(a => a !== 'journalist' || g.settings.votes === 'closed'), rnd);
+  g.players.filter(p => p.role === 'civilian').forEach((p, j) => { p.power = kit[j % kit.length]; });
   g.alibis = assignAlibis(g, rnd);
   return g;
 }
@@ -147,6 +156,9 @@ function openRound(g, rnd = Math.random) {
   const ask = from.length ? { kind: 'from', place: pick(from, rnd) }
     : rep.seen.length ? { kind: 'seen', place: pick(rep.seen, rnd) } : { kind: 'place', place: pick(held, rnd) };
   g.event = { beat: g.beats[r % g.beats.length], ask, dare: g.dareBase + r, clue: clue && clue.key, two: !!(clue && clue.two) };
+  // the lead investigator rotates round the living players in seat order and picks a room to search tonight
+  const alive = g.players.map((_, i) => i).filter(i => g.players[i].alive);
+  g.lead = alive.find(i => i > (g.lead ?? -1)) ?? alive[0]; g.search = null;
   planNight(g, rnd);
   if (clue) g.notes.push({ round: g.round, kind: 'clue', key: clue.key, who: clue.who, two: clue.two });
 }
@@ -158,7 +170,18 @@ function planNight(g, rnd = Math.random) {
   const kinds = shuffle(POWERS.filter(p => p !== 'locked' || R >= 3), rnd).slice(0, BALANCE.powers(n));
   const powers = {};
   shuffle(rooms, rnd).slice(0, kinds.length).forEach((r, i) => { powers[r] = kinds[i]; });
-  return (g.night = { rooms, powers });
+  // everyone gets a task in one of tonight's rooms (killers' are fake); kind picks the mini-game
+  const tasks = {};
+  g.players.forEach((p, i) => { if (p.alive) tasks[i] = { room: pick(rooms, rnd), kind: Math.floor(rnd() * 1000) }; });
+  return (g.night = { rooms, powers, tasks });
+}
+
+// The detective opens a case only by naming the player's secret name; a wrong name opens nothing,
+// and next turn the detective learns that player isn't that name.
+function openCase(g, target, alias) {
+  if (g.players[target].alias === alias) { g.case = { target, round: g.round }; g.caseFail = null; return true; }
+  g.caseFail = { target, alias, round: g.round };
+  return false;
 }
 
 // After writing a name (right or wrong), a killer waits killGap rounds before writing again.
@@ -187,13 +210,36 @@ function resolveRound(g, rnd = Math.random) {
   g.alibis = {};
   for (const i of A) g.alibis[i] = { place: room[i], others: count(room[i]) - 1 };
 
-  const kills = g.kills.filter(k => power(room[k.by]) !== 'locked'); // nobody slips out of a locked room
-  const deaths = new Set();
+  const acts = g.acts || {}, mine = (i, a) => P[i].power === a && acts[i] != null;
+  const locks = new Set(A.filter(i => mine(i, 'locksmith')).map(i => acts[i]));
+  const locked = r => power(r) === 'locked' || locks.has(r); // nobody slips out of a locked room
+  const guarded = new Set(A.filter(i => mine(i, 'guard')).map(i => acts[i]));
+  const kills = g.kills.filter(k => !locked(room[k.by]));
+  const sabotage = (g.sabotage || []).filter(s => P[s.by].alive && !locked(room[s.by]));
+  const deaths = new Set(), saved = new Set();
   let wrong = 0;
   for (const k of kills) {
     P[k.by].lastKill = g.round;
-    if (P[k.target].alias === k.alias) deaths.add(k.target); else wrong++;
+    if (P[k.target].alias !== k.alias) wrong++;
+    else if (guarded.has(k.target)) saved.add(k.target); // the right name, but a guard was watching
+    else deaths.add(k.target);
   }
+  for (const s of sabotage) P[s.by].lastKill = g.round;
+  report.sabotage = [...new Set(sabotage.map(s => s.kind))];
+
+  // tasks only count for innocents who were really in the task's room; killers' tasks are fake
+  const doneIn = {};
+  if (g.tasks) {
+    for (const i of A) {
+      const t = N.tasks && N.tasks[i];
+      if (P[i].role !== 'killer' && g.taskDone && g.taskDone[i] && t && room[i] === t.room) { g.tasks.done++; doneIn[room[i]] = (doneIn[room[i]] || 0) + 1; }
+    }
+    if (report.sabotage.includes('bar')) g.tasks.done = Math.max(0, g.tasks.done - BALANCE.sabotage(A.length));
+    report.tasks = { ...g.tasks };
+  }
+  report.lights = report.sabotage.includes('lights'); // no morning peek
+  if (g.search != null && N.rooms.includes(g.search)) report.search = { place: g.search, count: count(g.search) };
+  if (g.settings.votes === 'open') report.votes = { ...g.votes };
   // a kill always names the room the name was written from (-1: the Dark room, unnamed);
   // a killer who only missed may still have been seen slipping away
   const acted = [...new Set(kills.map(x => x.by))], killRooms = [...new Set(acted.map(k => room[k]))];
@@ -219,6 +265,10 @@ function resolveRound(g, rnd = Math.random) {
     else if (P[i].role !== 'killer' && killRooms.length && rnd() < BALANCE.sound) q.sound = pick(killRooms, rnd);
     const others = A.filter(j => j !== i);
     if (power(room[i]) === 'lookout' && others.length) { const j = pick(others, rnd); q.look = { p: j, place: room[j] }; }
+    if (doneIn[room[i]]) q.tasksHere = doneIn[room[i]];
+    if (mine(i, 'tracker') && acts[i] in room) q.track = { p: acts[i], place: room[acts[i]] };
+    if (mine(i, 'journalist') && acts[i] in g.votes) q.heard = { p: acts[i], v: g.votes[acts[i]] };
+    if (mine(i, 'guard') && saved.has(acts[i])) q.saved = acts[i];
     peek[i] = q;
   }
   // one rumor a night, true two times in three
@@ -257,16 +307,19 @@ function resolveRound(g, rnd = Math.random) {
   }
   if (!P.some(p => p.alive && p.role === 'detective')) g.case = null;
   g.winner = winnerOf(g);
-  g.report = report; g.votes = {}; g.kills = []; g.picks = {}; g.round++;
+  g.winBy = g.winner === 'town' && P.some(p => p.alive && p.role === 'killer') ? 'tasks' : null;
+  g.report = report; g.votes = {}; g.kills = []; g.picks = {}; g.acts = {}; g.taskDone = {}; g.sabotage = []; g.round++;
   return g;
 }
 
 function winnerOf(g) {
   const k = g.players.filter(p => p.alive && p.role === 'killer').length;
   const o = g.players.filter(p => p.alive && p.role !== 'killer').length;
-  return k === 0 ? 'town' : k >= o ? 'killers' : null;
+  if (k === 0) return 'town';
+  if (g.tasks && g.tasks.done >= g.tasks.goal) return 'town';
+  return k >= o ? 'killers' : null;
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { BALANCE, MODES, ROLES, SKIP, POWERS, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, planNight, letters, clueFits, clueKeys, nameClue, openRound, canKill, tally, resolveRound, winnerOf };
+  module.exports = { BALANCE, MODES, ROLES, SKIP, POWERS, ABILITIES, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, planNight, letters, clueFits, clueKeys, nameClue, openRound, canKill, openCase, tally, resolveRound, winnerOf };
 }

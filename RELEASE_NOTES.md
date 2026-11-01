@@ -1,4 +1,21 @@
-# ALIAS 1.2.1
+# ALIAS 1.3.0
+
+More to do, more to say, more to lie about.
+
+- **Everyone has a power.** No more plain civilians: Guard (protect someone; a right name fails), Tracker (learn
+  someone's real room), Journalist (learn someone's vote), Locksmith (lock a room).
+- **Tasks.** Everyone gets a task in one of tonight's rooms, done with a quick tap game: hold, enter a code, or tap
+  1 to 4 in order. Finished tasks fill the town's bar, and a full bar wins. People in your room learn that a task
+  was done there, not who did it. Killers' tasks are fake.
+- **Sabotage.** Instead of writing a name, a killer can undo finished tasks or cut the lights (no morning peek).
+- **Lead investigator.** Each round a different player picks a room to search. The morning report says how many
+  people were really there.
+- **Open or secret votes,** chosen at setup. Open votes show who voted for whom.
+- **The detective needs the secret name.** To open a case you pick a player and their secret name. A wrong name
+  opens nothing, and you learn they aren't that name.
+- Rebalanced for all of it with the bot simulator (see BALANCE.md).
+
+## 1.2.1
 
 - **Kills name their room.** When someone dies, the morning report says which room the name was written from.
   The killer has to claim they were somewhere else, and anyone who was really in that room can call the lie.
