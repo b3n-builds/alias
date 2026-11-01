@@ -17,7 +17,7 @@ for (const id of ids) for (const lang of ['en', 'ar']) {
   const t = SCENARIOS[id][lang];
   ok(t.names.length >= 12 + BALANCE.decoys[SCENARIOS[id].level], `${id}/${lang} names`);
   ok(new Set(t.names.map(letters)).size === t.names.length, `${id}/${lang} names collide`);
-  ok(t.places.length >= 7 && t.beats.length >= 6 && t.questions.length >= 6, `${id}/${lang} content`);
+  ok(t.places.length >= 7 && t.beats.length >= 6, `${id}/${lang} content`);
   for (const k of ['title', 'hook', 'intro', 'death', 'quiet', 'listLabel']) ok(t[k], `${id}/${lang} ${k}`);
 }
 
@@ -32,15 +32,26 @@ for (const lang of ['en', 'ar']) for (let n = 4; n <= 12; n++) {
 }
 ok(killerCount(5, 3) === 1 && killerCount(7, 3) === 2 && killerCount(12, 3) === 3, 'killer cap');
 
-// alibis: everyone has a place; each killer shares it with two innocents when possible
+// alibis: everyone is in a pair or trio, never all in one place; each killer shares it with an innocent
 for (let n = 4; n <= 12; n++) for (let t = 0; t < 30; t++) {
   const g = newGame(names(n), set(n, { scenario: 'souk' }));
   const al = assignAlibis(g);
+  ok(new Set(Object.values(al).map(a => a.place)).size >= 2, 'more than one place');
   g.players.forEach((p, i) => {
     const mates = g.players.filter((q, j) => j !== i && al[j].place === al[i].place);
     ok(mates.length === al[i].others, 'alibi count matches');
-    if (p.role === 'killer' && n >= 3 * g.settings.killers + 1) ok(mates.filter(m => m.role !== 'killer').length >= 2, 'killer hides in a trio');
+    ok(mates.length === 1 || mates.length === 2, 'pairs and trios');
+    if (p.role === 'killer') ok(mates.some(m => m.role !== 'killer'), 'killer hides with an innocent');
   });
+}
+
+// the table question asks about a place a witness named, else a place someone was last night
+for (let t = 0; t < 50; t++) {
+  const g = newGame(names(6), set(6));
+  openRound(g);
+  ok(g.event.ask.kind === 'place' && Object.values(g.alibis).some(a => a.place === g.event.ask.place), 'question asks about a held place');
+  g.round = 2; g.report = { seen: [5] }; openRound(g);
+  ok(g.event.ask.kind === 'seen' && g.event.ask.place === 5, 'question follows the witness');
 }
 
 // clues are true about a living killer, never repeat, and work in Arabic

@@ -54,7 +54,7 @@ function newGame(names, settings, rnd = Math.random) {
     screen: 'story', round: 1, idx: 0, shown: false,
     players: names.map((name, i) => ({ name, role: roles[i], alias: pool[i], alive: true, out: null, cleared: false, lastKill: null })),
     aliasList: shuffle(pool.slice(0, n + BALANCE.decoys[sc.level]), rnd),
-    beats: shuffle(range(txt.beats.length), rnd), questions: shuffle(range(txt.questions.length), rnd),
+    beats: shuffle(range(txt.beats.length), rnd),
     order: [], votes: {}, kills: [], case: null, caseLog: [], streak: null, notes: [], usedClues: [], event: null,
     alibis: {}, report: null, winner: null, talkEnds: 0
   };
@@ -62,14 +62,18 @@ function newGame(names, settings, rnd = Math.random) {
   return g;
 }
 
-// Everyone spends the night at a place with others. Each killer hides in a trio of two innocents,
+// Everyone spends the night at a place in a pair or trio. Each killer hides with up to two innocents,
 // the rest pair up (a trio if odd). Places are indices into the scenario's place list.
 // A killer's alibi looks like anyone else's; what gives them away is a witness on nights they act.
 function assignAlibis(g, rnd = Math.random) {
   const P = g.players, places = shuffle(range(SCENARIOS[g.scenario][g.lang].places.length), rnd);
   const ids = P.map((_, i) => i).filter(i => P[i].alive);
-  const inn = shuffle(ids.filter(i => P[i].role !== 'killer'), rnd), groups = [];
-  for (const k of shuffle(ids.filter(i => P[i].role === 'killer'), rnd)) groups.push([k, ...inn.splice(0, 2)]);
+  const inn = shuffle(ids.filter(i => P[i].role !== 'killer'), rnd);
+  const groups = shuffle(ids.filter(i => P[i].role === 'killer'), rnd).map(k => [k]);
+  for (let r = 0; r < 2; r++) for (const grp of groups) if (inn.length) grp.push(inn.shift());
+  // one innocent left over would end up alone or in a group of four: borrow one back so they pair
+  const trio = groups.find(grp => grp.length === 3);
+  if (inn.length === 1 && trio) inn.push(trio.pop());
   for (let i = 0; i < inn.length; i += 2) groups.push(inn.slice(i, i + 2));
   const last = groups[groups.length - 1];
   if (groups.length > 1 && last.length === 1) groups[groups.length - 2].push(groups.pop()[0]);
@@ -127,9 +131,13 @@ function nameClue(g, rnd = Math.random) {
 }
 
 // Opens a talk phase: a story event, a fresh clue and a question for the table.
+// The question points at real evidence: a place a witness saw someone leave, else a place where people were.
 function openRound(g, rnd = Math.random) {
   const clue = nameClue(g, rnd), r = g.round - 1;
-  g.event = { beat: g.beats[r % g.beats.length], question: g.questions[r % g.questions.length], clue: clue && clue.key, two: !!(clue && clue.two) };
+  const seen = g.round > 1 && g.report ? g.report.seen : [];
+  const held = [...new Set(Object.keys(g.alibis).filter(i => g.players[i].alive).map(i => g.alibis[i].place))];
+  const ask = seen.length ? { kind: 'seen', place: pick(seen, rnd) } : { kind: 'place', place: pick(held, rnd) };
+  g.event = { beat: g.beats[r % g.beats.length], ask, clue: clue && clue.key, two: !!(clue && clue.two) };
   if (clue) g.notes.push({ round: g.round, kind: 'clue', key: clue.key, who: clue.who, two: clue.two });
 }
 

@@ -51,6 +51,13 @@ const STRINGS = {
     tabs: { report: 'Report', names: 'Names', suspects: 'Suspects', notes: 'Notes' },
     tonightReport: 'Tonight’s report', newEvidence: 'New evidence', everyoneAnswers: 'Everyone answers out loud',
     thenAlibi: 'Then: where were you last night, and who can back you up?',
+    ask: (kind, place, r) => (kind === 'seen' ? [
+      `A witness saw someone slip away from <b>${place}</b>. Who was there? Raise your hand and say how many others your card said were with you.`,
+      `Someone left <b>${place}</b> in the night. Everyone who was there, own up. Do the numbers add up?`
+    ] : [
+      `Who was at <b>${place}</b> last night? Raise your hand and say how many others were with you.`,
+      `Everyone at <b>${place}</b> last night, speak up. Does the count match what your cards said?`
+    ])[r % 2],
     witness: place => `A witness saw someone slip away from <b>${place}</b> during the night.`,
     pressure: (name, c, left) => `<b>${name}</b> has topped the vote ${c} time${c > 1 ? 's' : ''} in a row. ${left} more and they’re out.`,
     listInfo: (n, d) => `${n} belong to players. ${d} are decoys.`,
@@ -138,6 +145,13 @@ const STRINGS = {
     tabs: { report: 'التقرير', names: 'الأسماء', suspects: 'المشتبهون', notes: 'الملاحظات' },
     tonightReport: 'تقرير الليلة', newEvidence: 'دليل جديد', everyoneAnswers: 'الكل يجيب بصوت عالٍ',
     thenAlibi: 'ثم: أين كنت الليلة الماضية، ومن يشهد لك؟',
+    ask: (kind, place, r) => (kind === 'seen' ? [
+      `رأى شاهد شخصاً يتسلل من <b>${place}</b>. من كان هناك؟ ارفع يدك وقل كم شخصاً كان معك حسب بطاقتك.`,
+      `غادر أحدهم <b>${place}</b> في الليل. ليعترف كل من كان هناك. هل تتطابق الأعداد؟`
+    ] : [
+      `من كان في <b>${place}</b> الليلة الماضية؟ ارفع يدك وقل كم شخصاً كان معك.`,
+      `ليتكلم كل من كان في <b>${place}</b> الليلة الماضية. هل يتطابق العدد مع ما قالته بطاقاتكم؟`
+    ])[r % 2],
     witness: place => `رأى شاهد أحدهم يتسلل من <b>${place}</b> أثناء الليل.`,
     pressure: (name, c, left) => `حصل <b>${name}</b> على أعلى الأصوات ${c} مرة متتالية. ${left} أخرى ويُطرد.`,
     listInfo: (n, d) => `${n} منها للاعبين. و${d} أسماء خادعة.`,

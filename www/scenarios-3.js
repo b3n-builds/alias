@@ -11,7 +11,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Columbina', 'Columbino', 'Bauta Nera', 'Bauta Bianca', 'Volto d’Oro', 'Volto d’Argento', 'Moretta', 'Moretto', 'Arlecchino', 'Arlecchina', 'Medico Rosso', 'Medico Verde', 'Gatto', 'Gatta', 'Luna Piena', 'Luna Nuova', 'Pierrot', 'Pierrette'],
       places: ['the Ballroom', 'the Gondola Landing', 'the Card Tables', 'the Hall of Mirrors', 'the Balcony', 'the Wine Cellar', 'the Musicians’ Gallery'],
       beats: ['A gondolier swears he rowed two guests in identical masks to two different doors at the same moment.', 'The orchestra played a waltz nobody requested. The sheet music was left on a chair, signed with a mask name.', 'A glove was found in the Hall of Mirrors with a list sewn into its lining.', 'The host’s ring is missing. The host is not saying who he last danced with.', 'Someone ordered the candles snuffed in the east wing ten minutes early.', 'A love letter was delivered to the wrong mask. Both claim it was meant for them.'],
-      questions: ['Who did you dance with first tonight?', 'What colour are the ribbons on your mask?', 'Who have you been avoiding all evening?', 'What did you whisper on the balcony?', 'Which mask would you never trust, and why?', 'Who left the ballroom during the last waltz?']
     },
     ar: {
       title: 'الحفل التنكري', hook: 'البندقية، الكرنفال، 1750. كل ضيف يرتدي قناعاً باسم، والأسماء تكاد تكون متطابقة.',
@@ -20,7 +19,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['كولومبينا', 'كولومبينو', 'باوتا السوداء', 'باوتا البيضاء', 'الوجه الذهبي', 'الوجه الفضي', 'موريتا', 'موريتو', 'أرليكينو', 'أرليكينا', 'الطبيب الأحمر', 'الطبيب الأخضر', 'القط', 'القطة', 'البدر', 'الهلال', 'بييرو', 'بييريت'],
       places: ['قاعة الرقص', 'مرسى الجندول', 'طاولات الورق', 'قاعة المرايا', 'الشرفة', 'قبو النبيذ', 'شرفة العازفين'],
       beats: ['يقسم صاحب جندول أنه نقل ضيفين بقناعين متطابقين إلى بابين مختلفين في اللحظة نفسها.', 'عزفت الفرقة رقصة فالس لم يطلبها أحد. تُركت النوتة على كرسي، موقعة باسم قناع.', 'وُجد قفاز في قاعة المرايا وفي بطانته قائمة مخيطة.', 'خاتم المضيف مفقود. والمضيف لا يقول مع من رقص آخر مرة.', 'أحدهم أمر بإطفاء الشموع في الجناح الشرقي قبل موعدها بعشر دقائق.', 'رسالة حب وصلت إلى القناع الخطأ. وكلاهما يقول إنها كانت له.'],
-      questions: ['مع من رقصت أولاً الليلة؟', 'ما لون الشرائط على قناعك؟', 'من تتجنبه طوال السهرة؟', 'ماذا همست على الشرفة؟', 'أي قناع لن تثق به أبداً، ولماذا؟', 'من غادر القاعة أثناء رقصة الفالس الأخيرة؟']
     }
   },
 
@@ -35,7 +33,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Mr Black', 'Madame Rouge', 'The Countess', 'Herr Doktor', 'Mr Grey', 'Signora Neve', 'The Diplomat', 'Miss Violet', 'The Banker', 'Professor Stern', 'The Courier', 'Baron Weiss', 'The Governess', 'Mr Ashby', 'Lady Frost', 'The Valet', 'Captain Ross', 'Miss Penny'],
       places: ['the Dining Car', 'the Observation Car', 'the Luggage Van', 'the Corridor', 'the Smoking Saloon', 'the Conductor’s Cabin', 'the Platform Door'],
       beats: ['The emergency brake was pulled at 2 a.m. The conductor found no one near it.', 'A cufflink was found in the luggage van, engraved with initials nobody owns.', 'Footprints in the snow lead from the train to the trees and back again.', 'The telegraph wire was cut at the last station, before the snow came.', 'Someone ordered breakfast for a compartment that is supposed to be empty.', 'The coal man says someone paid him to keep the heat off in carriage three.'],
-      questions: ['Why did you book under a false name?', 'Who did you share a table with at dinner?', 'What did you hear in the corridor after midnight?', 'Who on this train have you met before?', 'What is in the case you never let out of your sight?', 'Who was smoking alone when the brake was pulled?']
     },
     ar: {
       title: 'قطار الليل', hook: 'قطار نوم يعبر جبال الألب، محاصر بالثلج. ركاب حجزوا بأسماء مستعارة.',
@@ -44,7 +41,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['السيد بلاك', 'مدام روج', 'الكونتيسة', 'الهير دكتور', 'السيد غراي', 'السينيورا نيفي', 'الدبلوماسي', 'الآنسة فايوليت', 'المصرفي', 'البروفيسور شتيرن', 'الساعي', 'البارون فايس', 'المربية', 'السيد آشبي', 'الليدي فروست', 'الخادم', 'الكابتن روس', 'الآنسة بيني'],
       places: ['عربة الطعام', 'عربة المشاهدة', 'عربة الأمتعة', 'الممر', 'صالون التدخين', 'كابينة قاطع التذاكر', 'باب الرصيف'],
       beats: ['سُحبت فرامل الطوارئ في الثانية فجراً. لم يجد قاطع التذاكر أحداً بقربها.', 'وُجد زر قميص في عربة الأمتعة محفور عليه أحرف لا يملكها أحد.', 'آثار أقدام في الثلج تمتد من القطار إلى الأشجار ثم تعود.', 'قُطع سلك التلغراف في المحطة الأخيرة، قبل أن يأتي الثلج.', 'أحدهم طلب فطوراً لمقصورة يُفترض أنها فارغة.', 'يقول عامل الفحم إن أحدهم دفع له ليبقي التدفئة مطفأة في العربة الثالثة.'],
-      questions: ['لماذا حجزت باسم مزيف؟', 'مع من تشاركت الطاولة على العشاء؟', 'ماذا سمعت في الممر بعد منتصف الليل؟', 'من في هذا القطار قابلته من قبل؟', 'ماذا في الحقيبة التي لا تغيب عن عينك؟', 'من كان يدخن وحده عندما سُحبت الفرامل؟']
     }
   },
 
@@ -59,7 +55,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Peg Leg', 'Barnacle', 'One-Eye', 'Powder Monkey', 'Bilge Rat', 'Salty', 'Cutlass', 'Parrot', 'The Cook', 'Rum Barrel', 'Seagull', 'Hook', 'Black Flag', 'Doubloon', 'Crow’s Nest', 'Plank', 'Tide', 'Anchor'],
       places: ['the Crow’s Nest', 'the Galley', 'the Powder Room', 'the Captain’s Cabin', 'the Rum Hold', 'the Bow', 'the Brig'],
       beats: ['The rum ration was watered down. Someone wants the crew sloppy tonight.', 'A piece of the map was found nailed to the mast with a dagger.', 'The parrot keeps repeating a name nobody admits to teaching it.', 'The ship’s compass was found in the bilge, smashed.', 'A rowboat is missing from the stern. Every pirate claims they were asleep.', 'Fresh footprints of salt water lead into the captain’s cabin, and the captain was on deck.'],
-      questions: ['How did you lose your last ship?', 'Who would you never share a rum barrel with?', 'What did you see from the crow’s nest?', 'Which piece of the map do you guard?', 'Who sings the loudest shanties, and why do you think so?', 'Who was on deck when the rowboat went missing?']
     },
     ar: {
       title: 'النورس المذهّب', hook: 'سفينة قراصنة، وخريطة كنز ممزقة إلى قطع، ومتمرد بين الطاقم.',
@@ -68,7 +63,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['الرجل الخشبية', 'البرنقيل', 'الأعور', 'قرد البارود', 'فأر القاع', 'المالح', 'السيف المعقوف', 'الببغاء', 'الطباخ', 'برميل الرم', 'النورس', 'الخطّاف', 'العلم الأسود', 'الدبلون', 'عش الغراب', 'اللوح', 'المدّ', 'المرساة'],
       places: ['عش الغراب', 'المطبخ', 'مخزن البارود', 'كابينة القبطان', 'مخزن الرم', 'مقدمة السفينة', 'الزنزانة'],
       beats: ['خُففت حصة الرم بالماء. أحدهم يريد الطاقم متراخياً الليلة.', 'وُجدت قطعة من الخريطة مسمّرة على الصاري بخنجر.', 'الببغاء يكرر اسماً لا يعترف أحد بأنه علّمه إياه.', 'وُجدت بوصلة السفينة محطمة في قاع السفينة.', 'قارب تجديف مفقود من المؤخرة. وكل قرصان يقول إنه كان نائماً.', 'آثار أقدام مبللة بماء البحر تقود إلى كابينة القبطان، والقبطان كان على السطح.'],
-      questions: ['كيف خسرت سفينتك الأخيرة؟', 'مع من لن تتقاسم برميل رم أبداً؟', 'ماذا رأيت من عش الغراب؟', 'أي قطعة من الخريطة تحرس؟', 'من يغني أعلى أغاني البحارة، ولماذا برأيك؟', 'من كان على السطح عندما اختفى القارب؟']
     }
   },
 
@@ -83,7 +77,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Tumbleweed', 'Rattlesnake', 'Whiskey Pete', 'Dusty', 'The Preacher', 'Silver Spur', 'Calamity', 'Coyote', 'Deadeye', 'Lucky Lou', 'The Undertaker', 'Buckshot', 'Sundown', 'The Blacksmith', 'Prairie Rose', 'Mule Skinner', 'Ace of Spades', 'Doc'],
       places: ['the Saloon', 'the Livery Stable', 'the General Store', 'the Jailhouse', 'the Church', 'the Water Trough', 'the Gold Assay Office'],
       beats: ['Somebody shot out the saloon lamp during a card game. Nobody heard the shot.', 'A wanted poster was nailed to the church door with a name torn off.', 'The stagecoach brought a letter for someone who does not exist in Dustwater.', 'The blacksmith says someone had a horse reshod backwards to fool trackers.', 'A pouch of gold dust was found buried under the jailhouse steps.', 'The piano player swears he saw two shadows leave the saloon and only one come back.'],
-      questions: ['What brought you to Dustwater?', 'Who did you lose to at cards last night?', 'What do you keep in your saddlebags?', 'Who in town carries two guns?', 'Where were you when the lamp was shot out?', 'Who would you hire to watch your back?']
     },
     ar: {
       title: 'داستووتر', hook: 'بلدة على الحدود، وحانة مليئة بالغرباء، ومسلّح يحمل قائمة.',
@@ -92,7 +85,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['الشوك الطائر', 'الأفعى المجلجلة', 'بيت الويسكي', 'المغبّر', 'الواعظ', 'المهماز الفضي', 'الكارثة', 'الذئب', 'العين القاتلة', 'لو المحظوظ', 'الحانوتي', 'الخرطوش', 'الغروب', 'الحدّاد', 'وردة البراري', 'سائس البغال', 'آس البستوني', 'الدكتور'],
       places: ['الحانة', 'إسطبل الخيول', 'المتجر العام', 'السجن', 'الكنيسة', 'حوض الماء', 'مكتب فحص الذهب'],
       beats: ['أحدهم أطلق النار على مصباح الحانة أثناء لعب الورق. لم يسمع أحد الطلقة.', 'سُمّر ملصق «مطلوب» على باب الكنيسة والاسم ممزق.', 'أحضرت العربة رسالة لشخص غير موجود في داستووتر.', 'يقول الحدّاد إن أحدهم ركّب لحصانه حدوات معكوسة ليخدع المتعقبين.', 'وُجد كيس من غبار الذهب مدفوناً تحت درج السجن.', 'يقسم عازف البيانو أنه رأى ظلين يغادران الحانة وظلاً واحداً يعود.'],
-      questions: ['ما الذي جاء بك إلى داستووتر؟', 'أمام من خسرت في الورق الليلة الماضية؟', 'ماذا تحمل في خرج حصانك؟', 'من في البلدة يحمل مسدسين؟', 'أين كنت عندما أُطلق النار على المصباح؟', 'من ستستأجر ليحمي ظهرك؟']
     }
   },
 
@@ -107,7 +99,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['The White Stag', 'The Black Boar', 'The Silver Wolf', 'The Red Fox', 'The Golden Lion', 'The Grey Heron', 'The Blue Falcon', 'The Green Serpent', 'The Iron Bear', 'The Twin Swans', 'The Crowned Hare', 'The Raven', 'The Bronze Bull', 'The Night Owl', 'The Sea Horse', 'The Rose', 'The Unicorn', 'The Old Hound'],
       places: ['the Great Hall', 'the Chapel', 'the Kitchens', 'the Armoury', 'the Library Tower', 'the Battlements', 'the King’s Antechamber'],
       beats: ['The king’s physician was found asleep at his post. His wine cup smells of herbs.', 'A banner in the great hall was turned upside down during the night.', 'The castle’s ravens were let out of their cages. Nobody admits to having the key.', 'A letter sealed with the king’s ring was sent south. The ring is still on the king’s hand.', 'Someone has been practising the king’s signature on the backs of old maps.', 'The jester refuses to perform tonight. He says a song he wrote has come true.'],
-      questions: ['What do you want when the old king dies?', 'Which house have you sworn secretly to support?', 'Who did you see on the battlements last night?', 'What did the king say to you in private?', 'Which noble would you trust with your sword?', 'Who has been visiting the library tower at night?']
     },
     ar: {
       title: 'قلعة رافنزهولم', hook: 'بلاط شتوي، وملك يحتضر، ونبلاء لا يُعرفون إلا بشعاراتهم.',
@@ -116,7 +107,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['الأيل الأبيض', 'الخنزير الأسود', 'الذئب الفضي', 'الثعلب الأحمر', 'الأسد الذهبي', 'مالك الحزين الرمادي', 'الصقر الأزرق', 'الأفعى الخضراء', 'الدب الحديدي', 'البجعتان', 'الأرنب المتوّج', 'الغراب', 'الثور البرونزي', 'بومة الليل', 'حصان البحر', 'الوردة', 'وحيد القرن', 'كلب الصيد العجوز'],
       places: ['القاعة الكبرى', 'الكنيسة', 'المطابخ', 'مخزن السلاح', 'برج المكتبة', 'الأسوار', 'غرفة انتظار الملك'],
       beats: ['وُجد طبيب الملك نائماً في مكانه. كأس نبيذه تفوح منه رائحة أعشاب.', 'قُلبت راية في القاعة الكبرى رأساً على عقب خلال الليل.', 'أُطلقت غربان القلعة من أقفاصها. لا أحد يعترف بأن المفتاح معه.', 'أُرسلت رسالة مختومة بخاتم الملك إلى الجنوب. والخاتم لا يزال في يد الملك.', 'أحدهم يتدرب على توقيع الملك على ظهور خرائط قديمة.', 'المهرج يرفض أن يقدّم عرضه الليلة. يقول إن أغنية كتبها قد تحققت.'],
-      questions: ['ماذا تريد عندما يموت الملك العجوز؟', 'أي بيت أقسمت سراً على دعمه؟', 'من رأيت على الأسوار الليلة الماضية؟', 'ماذا قال لك الملك على انفراد؟', 'أي نبيل تأتمنه على سيفك؟', 'من يزور برج المكتبة ليلاً؟']
     }
   }
 });

@@ -370,7 +370,7 @@ const VIEWS = {
           <p class="beat">${esc(x.beats[ev.beat] || '')}</p>
           ${seen.map(pl => `<div class="witness">${ico('seen')}<p>${t.witness(placeName(g, pl))}</p></div>`).join('')}
           ${ev.clue ? `<div class="evidence">${ico('clue')}<div><p class="label">${t.newEvidence}</p><p class="clue-text">${esc(clueText(g.lang, ev.clue, ev.two))}</p></div></div>` : ''}</section>
-        <section class="question"><p class="label">${t.everyoneAnswers}</p><p class="q">${esc(x.questions[ev.question] || '')}</p><p class="muted small">${t.thenAlibi}</p></section>
+        <section class="question"><p class="label">${t.everyoneAnswers}</p><p class="q">${ev.ask && ev.ask.place != null ? t.ask(ev.ask.kind, placeName(g, ev.ask.place), g.round) : ''}</p><p class="muted small">${t.thenAlibi}</p></section>
         ${pressure}`;
     } else if (tab === 'names') {
       content = `<p class="label">${esc(x.listLabel)}</p><p class="muted small">${t.listInfo(g.players.length, g.aliasList.length - g.players.length)}</p>

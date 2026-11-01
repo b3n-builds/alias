@@ -36,7 +36,8 @@ not as exact win rates.
 
 1. **Killers now have real alibis.** In the first version a killer was the only player without a place to have been,
    so any night without a kill exposed them. Bots found the killer by round 3–4 almost every game (killers won 0% at
-   8+ players). Now killers spend the night in a group of three like everyone else. What can give them away is a
+   8+ players). Now everyone, killers included, spends the night in a pair or trio (never all in one place),
+   and each killer always shares a place with at least one innocent. What can give them away is a
    **witness**: on nights a killer writes a name, someone may have seen a person slip away from their place, and the
    morning report says where. Information now builds up over several nights instead of arriving all at once.
 2. **The number of killers scales with the table** ("Killers: Auto"): 1 killer for 4–6 players, 2 for 7–9, 3 for
@@ -65,10 +66,10 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 | Players         | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
 |-----------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| Easy            | 56% | 43% | 36% | 43% | 41% | 39% | 42% | 53% | 44% |
-| Medium          | 60% | 53% | 44% | 50% | 51% | 41% | 53% | 60% | 50% |
-| Hard            | 61% | 58% | 47% | 48% | 52% | 43% | 54% | 67% | 53% |
-| Avg. rounds (M) | 3.2 | 5.0 | 6.1 | 6.8 | 9.6 | 11  | 9.6 | 12  | 14  |
+| Easy            | 43% | 40% | 32% | 34% | 39% | 36% | 37% | 51% | 43% |
+| Medium          | 48% | 52% | 43% | 41% | 48% | 43% | 43% | 57% | 49% |
+| Hard            | 52% | 53% | 46% | 48% | 54% | 46% | 51% | 61% | 52% |
+| Avg. rounds (M) | 3.1 | 5.0 | 6.0 | 6.9 | 9.7 | 11  | 9.7 | 12  | 14  |
 
 - Penalty mode leans to the town (~30% killer wins); Frenzy leans to the killers (~75%). The setup screen says so.
 - A sharp table beats killers most of the time and a casual one loses to them. Skill matters, which is healthy.
@@ -77,5 +78,8 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 - Big games run long (10–14 rounds at 10+ players), mostly because of the every-other-round rule.
   If that drags, the first thing to try is 1-minute talk time, or turning the rule off for 7–9 players.
-- 4-player games favor the killer (~60%). Small tables are swingy in every game of this kind.
+- Small tables (4–5 players) are swingy in every game of this kind.
+- 1.0.3 playtest fix: at 4 players everyone used to share one alibi place, which made witness reports useless.
+  Alibis are now pairs and trios at every size, and the table question each round asks about a real place
+  (the one a witness named, or one where people were).
 - None of this has been tested with real people yet. After a few games, note who wins and adjust `BALANCE` in `www/rules.js`.

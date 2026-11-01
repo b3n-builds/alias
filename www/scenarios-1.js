@@ -15,7 +15,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['The Raven', 'Velvet', 'Ghost Pepper', 'Silk', 'Static', 'Blue Note', 'Cinder', 'Dahlia', 'Fedora', 'Gin Rummy', 'Halflight', 'Ivory', 'Jackknife', 'Lucky Seven', 'Midnight', 'Nickel', 'Porcelain', 'Quill'],
       places: ['the Blue Moon Bar', 'the Pier', 'the All-Night Diner', 'the Train Station', 'the Pawn Shop', 'the Boxing Gym', 'the Old Cinema'],
       beats: ['The jukebox at the Blue Moon played the same song all night. Someone kept feeding it nickels.', 'A wet trench coat was found hanging in the wrong closet at the precinct.', 'The ledger’s ink matches a pen sold at only one shop downtown.', 'A cab driver remembers a fare who paid in silver dollars and never said a word.', 'Someone set fire to the newspaper’s back room. Only the obituaries survived.', 'A torn matchbook was left on the pier with half a phone number burned away.'],
-      questions: ['What’s your drink, and who paid for it last night?', 'Who in this city owes you money?', 'What were you doing when the streetlights went out?', 'Who did you see leaving the bar early?', 'What’s in your coat pocket right now?', 'Why did you come to this city in the first place?']
     },
     ar: {
       title: 'مدينة المطر', hook: 'مدينة من الأربعينيات، ومنتقم مجهول، ودفتر أسود صغير.',
@@ -24,7 +23,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['الغراب', 'المخمل', 'الفلفل الحار', 'الحرير', 'التشويش', 'النغمة الزرقاء', 'الرماد', 'الداليا', 'القبعة', 'الورقة الرابحة', 'نصف الضوء', 'العاج', 'المطواة', 'السبعة المحظوظة', 'منتصف الليل', 'القرش', 'الخزف', 'الريشة'],
       places: ['حانة القمر الأزرق', 'الرصيف البحري', 'المطعم الساهر', 'محطة القطار', 'محل الرهونات', 'نادي الملاكمة', 'السينما القديمة'],
       beats: ['صندوق الموسيقى في حانة القمر الأزرق عزف الأغنية نفسها طوال الليل. أحدهم ظل يُطعمه العملات.', 'معطف مبلل وُجد معلقاً في الخزانة الخطأ داخل قسم الشرطة.', 'حبر الدفتر يطابق قلماً لا يُباع إلا في متجر واحد وسط المدينة.', 'سائق أجرة يتذكر زبوناً دفع بدولارات فضية ولم ينطق بكلمة.', 'أحدهم أشعل النار في الغرفة الخلفية للجريدة. لم تنجُ إلا صفحة الوفيات.', 'علبة كبريت ممزقة تُركت على الرصيف وعليها نصف رقم هاتف محترق.'],
-      questions: ['ما مشروبك، ومن دفع ثمنه البارحة؟', 'من في هذه المدينة مدين لك بالمال؟', 'ماذا كنت تفعل عندما انطفأت أضواء الشارع؟', 'من رأيته يغادر الحانة مبكراً؟', 'ماذا يوجد في جيب معطفك الآن؟', 'لماذا جئت إلى هذه المدينة أصلاً؟']
     }
   },
 
@@ -39,7 +37,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Prefect', 'Bookworm', 'Head Girl', 'Class Clown', 'Teacher’s Pet', 'Night Owl', 'Captain', 'Chess Kid', 'Daydreamer', 'Lab Rat', 'Choirboy', 'Stargazer', 'New Kid', 'Ink Stain', 'Sleepwalker', 'Prankster', 'Rowing Blue', 'Library Ghost'],
       places: ['the Library', 'the Chapel', 'the Boathouse', 'the Science Lab', 'the Kitchens', 'the Bell Tower', 'the Music Room'],
       beats: ['The bell tower rang at three in the morning. Nobody admits to touching the rope.', 'A page was torn out of the school register. The ink on the next page was still wet.', 'Muddy footprints lead from the boathouse to the dormitory stairs, then stop.', 'A note was left on the headmaster’s desk. It says only: “I know your nickname.”', 'The library’s restricted section was found unlocked, and one shelf was empty.', 'A lantern was seen moving across the playing fields long after midnight.'],
-      questions: ['Who was the last person you saw before lights-out, and what were they doing?', 'Which teacher would you trust with a secret, and why?', 'What did you hear in the corridor last night?', 'Where do you hide when you skip class?', 'What did you write in your diary last night?', 'Which club would you never join, and why?']
     },
     ar: {
       title: 'أكاديمية آشغروف', hook: 'طلاب يختفون من مدرسة داخلية بعد إطفاء الأنوار.',
@@ -48,7 +45,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['العريف', 'دودة الكتب', 'رئيسة الطلاب', 'مهرج الفصل', 'المدلل', 'بومة الليل', 'الكابتن', 'فتى الشطرنج', 'الحالم', 'فأر المختبر', 'فتى الجوقة', 'راصد النجوم', 'الطالب الجديد', 'بقعة الحبر', 'السائر نائماً', 'المشاغب', 'المجدّف', 'شبح المكتبة'],
       places: ['المكتبة', 'الكنيسة الصغيرة', 'مرفأ القوارب', 'مختبر العلوم', 'المطبخ', 'برج الجرس', 'غرفة الموسيقى'],
       beats: ['دقّ جرس البرج في الثالثة فجراً. لا أحد يعترف بأنه لمس الحبل.', 'صفحة انتُزعت من سجل المدرسة. والحبر على الصفحة التالية كان لا يزال رطباً.', 'آثار أقدام موحلة تمتد من مرفأ القوارب إلى درج المهجع، ثم تختفي.', 'تُركت ورقة على مكتب المدير. مكتوب فيها فقط: «أعرف لقبك».', 'وُجد القسم المحظور في المكتبة مفتوحاً، ورف واحد فارغ تماماً.', 'شوهد فانوس يتحرك عبر الملاعب بعد منتصف الليل بوقت طويل.'],
-      questions: ['من آخر شخص رأيته قبل إطفاء الأنوار، وماذا كان يفعل؟', 'أي معلم قد تأتمنه على سر، ولماذا؟', 'ماذا سمعت في الممر الليلة الماضية؟', 'أين تختبئ عندما تتغيب عن الحصة؟', 'ماذا كتبت في مذكراتك الليلة الماضية؟', 'أي نادٍ لن تنضم إليه أبداً، ولماذا؟']
     }
   },
 
@@ -63,7 +59,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['The Spice Seller', 'Brass Lamp', 'The Carpet Weaver', 'Lantern Boy', 'The Perfumer', 'Coppersmith', 'The Calligrapher', 'Hookah Man', 'Date Merchant', 'The Storyteller', 'Saffron', 'The Goldsmith', 'Tea Boy', 'The Scribe', 'Jasmine', 'The Tentmaker', 'Glass Blower', 'Rosewater'],
       places: ['the Spice Market', 'the Coffeehouse', 'the Mosque Courtyard', 'Copper Street', 'the Rooftop Terrace', 'the Old Gate', 'the Bathhouse'],
       beats: ['The lamp-lighter swears one lantern on Copper Street went out on its own.', 'A whole sack of saffron was emptied into the fountain before dawn.', 'A stranger asked three merchants for directions to the same stall.', 'Someone paid for coffee with a coin from another century.', 'The muezzin saw a shadow crossing the rooftops before the dawn call.', 'A carpet was delivered to the wrong house with a note pinned inside.'],
-      questions: ['What did you sell today, and to whom?', 'Which stall would you never buy from?', 'What did you hear at the coffeehouse?', 'Who haggled with you the longest today?', 'What do you keep hidden under your counter?', 'Which rumor is going around the market right now?']
     },
     ar: {
       title: 'السوق القديم', hook: 'تجار وجواسيس وقاتل مأجور في سوق القاهرة القديمة.',
@@ -72,7 +67,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['بائع التوابل', 'المصباح النحاسي', 'ناسج السجاد', 'صبي الفانوس', 'العطّار', 'النحّاس', 'الخطّاط', 'صاحب الشيشة', 'تاجر التمر', 'الحكواتي', 'الزعفران', 'الصائغ', 'صبي الشاي', 'الكاتب', 'الياسمين', 'الخيّامي', 'نافخ الزجاج', 'ماء الورد'],
       places: ['سوق التوابل', 'المقهى', 'صحن المسجد', 'شارع النحاسين', 'السطح', 'البوابة القديمة', 'الحمّام'],
       beats: ['يقسم مُشعل الفوانيس أن فانوساً في شارع النحاسين انطفأ وحده.', 'كيس كامل من الزعفران أُفرغ في النافورة قبل الفجر.', 'غريب سأل ثلاثة تجار عن الطريق إلى الدكان نفسه.', 'أحدهم دفع ثمن القهوة بعملة من قرن آخر.', 'رأى المؤذن ظلاً يعبر الأسطح قبل أذان الفجر.', 'سجادة وصلت إلى البيت الخطأ وفي داخلها ورقة مثبتة.'],
-      questions: ['ماذا بعت اليوم، ولمن؟', 'من أي دكان لن تشتري أبداً؟', 'ماذا سمعت في المقهى؟', 'من ساومك أطول وقت اليوم؟', 'ماذا تخبئ تحت طاولة دكانك؟', 'ما الإشاعة التي تدور في السوق الآن؟']
     }
   },
 
@@ -87,7 +81,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['Nova', 'Nova Two', 'Halo', 'Halos', 'Orbit', 'Orbiter', 'Echo', 'Echo Prime', 'Vega', 'Vela', 'Lyra', 'Lyre', 'Comet', 'Comet Tail', 'Atlas', 'Atlas Nine', 'Ion', 'Iona'],
       places: ['Hydroponics', 'the Observation Deck', 'Engineering', 'the Mess Hall', 'the Med Bay', 'the Airlock Corridor', 'Comms'],
       beats: ['The station AI logged a door opening on a deck nobody was assigned to.', 'Oxygen readings dipped for ninety seconds on Deck 3. Nobody reported it.', 'A crew tablet was wiped clean and left in the airlock corridor.', 'The comms array received a transmission addressed to nobody.', 'Hydroponics lost an entire tray of seedlings overnight.', 'Someone ran the coffee machine at 03:12. The log is missing a name.'],
-      questions: ['What were you doing when the alarms went off?', 'Which crew member do you avoid in the mess hall?', 'What’s the first thing you’ll do back on Earth?', 'Who had access to your deck last night?', 'What did your last log entry say?', 'If you had to sabotage one system, which would it be?']
     },
     ar: {
       title: 'كبلر العميقة', hook: 'محطة أبحاث بعيدة عن الوطن. مخرّب بين الطاقم. ونداءات متشابهة.',
@@ -96,7 +89,6 @@ Object.assign(SCENARIOS_DATA, {
       names: ['نوفا', 'نوفا الثانية', 'هالة', 'هالات', 'مدار', 'المداري', 'صدى', 'صدى الأول', 'فيغا', 'فيلا', 'ليرا', 'ليرة', 'مذنب', 'ذيل المذنب', 'أطلس', 'أطلس التاسع', 'أيون', 'أيونا'],
       places: ['قسم الزراعة المائية', 'منصة المراقبة', 'غرفة المحركات', 'قاعة الطعام', 'العيادة', 'ممر غرفة الضغط', 'غرفة الاتصالات'],
       beats: ['سجّل حاسوب المحطة فتح باب في طابق لا أحد مكلف به.', 'انخفضت قراءات الأكسجين تسعين ثانية في الطابق الثالث. لم يبلّغ أحد.', 'جهاز لوحي لأحد الطاقم مُسح بالكامل وتُرك في ممر غرفة الضغط.', 'استقبل هوائي الاتصالات رسالة موجهة إلى لا أحد.', 'خسر قسم الزراعة المائية صينية كاملة من الشتلات خلال الليل.', 'أحدهم شغّل آلة القهوة في الساعة 03:12. والسجل لا يذكر اسماً.'],
-      questions: ['ماذا كنت تفعل عندما انطلقت الإنذارات؟', 'أي فرد من الطاقم تتجنبه في قاعة الطعام؟', 'ما أول شيء ستفعله عند عودتك إلى الأرض؟', 'من كان يستطيع دخول طابقك الليلة الماضية؟', 'ماذا كتبت في آخر سجل لك؟', 'لو اضطررت لتخريب نظام واحد، فأيها تختار؟']
     }
   }
 });
