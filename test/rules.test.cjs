@@ -54,13 +54,13 @@ for (let n = 4; n <= 12; n++) for (let t = 0; t < 20; t++) {
 }
 
 // one night with chosen rooms: killer acts from room a with one innocent; b is a lookout; c is locked
-function night(power, moveKiller) {
+function night(power, moveKiller, miss) {
   const g = newGame(names(6), set(6)), k = roleIdx(g, 'killer')[0], inn = g.players.map((_, i) => i).filter(i => i !== k);
   const [a, b, c] = planNight(g).rooms;
   g.night.powers = { [b]: 'lookout', [c]: 'locked', ...(power ? { [a]: power } : {}) };
   g.picks = { [k]: moveKiller ? c : a, [inn[0]]: a, [inn[1]]: b, [inn[2]]: b, [inn[3]]: c, [inn[4]]: c };
   g.witness = 0.5;
-  g.kills = [{ by: k, target: inn[4], alias: g.players[inn[4]].alias }];
+  g.kills = [{ by: k, target: inn[4], alias: miss ? 'nobody' : g.players[inn[4]].alias }];
   resolveRound(g);
   return { g, k, inn, a, b, c };
 }
@@ -70,6 +70,9 @@ for (let t = 0; t < 40; t++) {
   const { g, k, inn, a, b } = night();
   ok(g.alibis[k].place === a && g.alibis[inn[1]].place === b && g.alibis[k].others === 1, 'picks become alibis');
   ok(g.report.dead.includes(inn[4]), 'kill from an open room lands');
+  ok(g.report.from.length === 1 && g.report.from[0] === a && g.report.seen.length === 0, 'a kill names the room it was written from');
+  ok(night('dark').g.report.from[0] === -1, 'a kill from the dark room names no room');
+  ok(night(null, false, true).g.report.from.length === 0, 'a miss names no room');
   ok(g.peek[inn[0]].left && !g.peek[inn[1]].left && g.peek[k].acted && !g.peek[k].left, 'only roommates notice someone left');
   ok(g.peek[k].trace != null && g.peek[k].trace === g.peek[inn[0]].trace && g.peek[inn[1]].trace == null, 'trace only for the room');
   ok(!('sound' in g.peek[k]) && (g.peek[inn[1]].sound == null || g.peek[inn[1]].sound === a), 'sounds are true and never for killers');
@@ -78,11 +81,11 @@ for (let t = 0; t < 40; t++) {
   ok(g.peek[k].cover && g.peek[k].cover.place !== a, 'cover story points elsewhere');
   const locked = night(null, true);
   ok(locked.g.report.dead.length === 0 && locked.g.players[locked.k].lastKill == null, 'no kill from a locked room');
-  ok(night('dark').g.report.seen.length === 0, 'dark room hides the killer from witnesses');
+  ok(night('dark', false, true).g.report.seen.length === 0, 'dark room hides the killer from witnesses');
 }
 {
   let crowded = 0, plain = 0;
-  for (let t = 0; t < 400; t++) { crowded += night('crowded').g.report.seen.length; plain += night().g.report.seen.length; }
+  for (let t = 0; t < 400; t++) { crowded += night('crowded', false, true).g.report.seen.length; plain += night(null, false, true).g.report.seen.length; }
   ok(crowded === 400 && plain > 120 && plain < 280, 'crowded doubles the witness chance');
 }
 BALANCE.notice = noticeChance;
@@ -94,6 +97,8 @@ for (let t = 0; t < 50; t++) {
   ok(g.event.ask.kind === 'place' && Object.values(g.alibis).some(a => a.place === g.event.ask.place), 'question asks about a held place');
   g.round = 2; g.report = { seen: [5] }; openRound(g);
   ok(g.event.ask.kind === 'seen' && g.event.ask.place === 5, 'question follows the witness');
+  g.report = { seen: [5], from: [3] }; openRound(g);
+  ok(g.event.ask.kind === 'from' && g.event.ask.place === 3, 'question follows the kill room first');
 }
 
 // clues are true about a living killer, never repeat, and work in Arabic

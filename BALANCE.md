@@ -44,7 +44,7 @@ not as exact win rates.
    10–12. You can still pick 1, 2 or 3 yourself (capped so each killer faces at least two innocents).
 3. **Your "kill every 2 rounds" rule for big games stays**, starting at 7 players. On its own it made big games
    unwinnable for killers (one killer, half the attempts, ~10 people to remove), which is why it comes with more killers.
-4. **Vote streak by table size:** thrown out after 2 straight top votes at 4 players, 4 at 6 and 9, 3 elsewhere.
+4. **Vote streak by table size:** thrown out after 2 straight top votes at 4 players, 4 at 6, 9 and 12, 3 elsewhere.
    The odd pattern is deliberate: player-count parity swings these sizes (re-tuned for rooms in 1.1).
 5. **Difficulty now means "how hard the case is for the town":**
 
@@ -64,6 +64,11 @@ not as exact win rates.
    only 9–31%. The dials that brought it back without removing any of it: roommates notice a killer slipping out
    30% of the time each (not always), the public witness is rarer (it matters less now), sounds are 10%, and the
    vote streaks above.
+8. **Kills name their room (1.2).** When someone dies, the morning report says which room the name was written
+   from (the Dark room shows as "somewhere dark"). The killer must claim another room, and anyone who was really
+   there can call the lie. Misses still only risk a witness. To keep killers in the game, roommates now notice
+   someone slipping out 15% of the time (was 30%; the named room does most of that job now) and 12 players use a
+   4-round streak.
 
 ## What deliberately did not change
 
@@ -74,12 +79,12 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 | Players         | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
 |-----------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| Easy            | 41% | 34% | 34% | 49% | 32% | 35% | 59% | 46% | 33% |
-| Medium          | 47% | 43% | 40% | 54% | 39% | 43% | 64% | 47% | 38% |
-| Hard            | 50% | 43% | 39% | 57% | 39% | 43% | 64% | 50% | 39% |
-| Avg. rounds (M) | 3.1 | 4.9 | 6.2 | 7.9 | 9.6 | 12  | 10  | 12  | 14  |
+| Easy            | 42% | 35% | 33% | 52% | 30% | 37% | 61% | 46% | 58% |
+| Medium          | 48% | 43% | 40% | 55% | 38% | 43% | 64% | 50% | 61% |
+| Hard            | 49% | 46% | 40% | 58% | 40% | 39% | 66% | 51% | 60% |
+| Avg. rounds (M) | 3.1 | 4.8 | 6.3 | 8.1 | 9.3 | 12  | 11  | 12  | 15  |
 
-- Penalty mode leans to the town (24–51% killer wins); Frenzy leans to the killers (66–92%). The setup screen says so.
+- Penalty mode leans to the town (24–55% killer wins); Frenzy leans to the killers (69–94%). The setup screen says so.
 - A sharp table beats killers most of the time and a casual one loses to them. Skill matters, which is healthy.
 
 ## Known limits

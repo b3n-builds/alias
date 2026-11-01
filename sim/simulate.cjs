@@ -140,7 +140,7 @@ function play(G, n, settings, skill, rnd) {
     if (r.dead.length && st.firstDeath == null) st.firstDeath = round;
     if (r.ejected != null) { if (isK(r.ejected)) st.ejectedKiller++; else st.ejectedInnocent++; }
     for (const c of r.clears) pub[c] = -99;
-    night = { alibis: g.alibis, seen: r.seen, peek: g.peek };
+    night = { alibis: g.alibis, seen: [...r.seen, ...r.from.filter(p => p >= 0)], peek: g.peek }; // a named kill room is public evidence like a witness
   }
   return { winner: g.winner || 'draw', rounds: g.round - 1, ...st };
 }

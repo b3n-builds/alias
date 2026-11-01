@@ -1,4 +1,11 @@
-# ALIAS 1.1.0
+# ALIAS 1.2.0
+
+- **Kills name their room.** When someone dies, the morning report says which room the name was written from.
+  The killer has to claim they were somewhere else, and anyone who was really in that room can call the lie.
+  A kill from the Dark room shows as "somewhere dark". A wrong name still only risks a witness.
+- Rebalanced for it with the bot simulator (see BALANCE.md).
+
+## 1.1.0
 
 Rooms matter now, and everyone has something private to share or bluff about.
 

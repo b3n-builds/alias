@@ -51,7 +51,12 @@ const STRINGS = {
     tabs: { report: 'Report', names: 'Names', suspects: 'Suspects', notes: 'Notes' },
     tonightReport: 'Tonight’s report', newEvidence: 'New evidence', everyoneAnswers: 'Everyone answers out loud',
     thenAlibi: 'Then: where were you last night, and who can back you up?',
-    ask: (kind, place, r) => (kind === 'seen' ? [
+    writtenFrom: pl => `The name was written from <b>${pl}</b>.`,
+    writtenDark: 'The name was written from somewhere dark. Nobody knows which room.',
+    ask: (kind, place, r) => (kind === 'from' ? [
+      `The name was written from <b>${place}</b>. Who was there? Raise your hand and say how many others were with you.`,
+      `Someone in <b>${place}</b> wrote that name. Everyone who was there, speak up. Do the numbers add up?`
+    ] : kind === 'seen' ? [
       `A witness saw someone slip away from <b>${place}</b>. Who was there? Raise your hand and say how many others your card said were with you.`,
       `Someone left <b>${place}</b> in the night. Everyone who was there, own up. Do the numbers add up?`
     ] : [
@@ -82,7 +87,7 @@ const STRINGS = {
     powers: {
       lookout: ['Lookout', 'Whoever spends the night here learns where one other person was.'],
       locked: ['Locked', 'Nobody can slip out of here. No killer can write a name from this room.'],
-      dark: ['Dark', 'Witnesses can’t see anyone slip out of here.'],
+      dark: ['Dark', 'A kill from here isn’t traced to this room, and witnesses can’t see anyone slip out.'],
       crowded: ['Crowded', 'Anyone slipping out of here is twice as likely to be seen.']
     },
     pickRoom: 'Where do you spend the night?', pickRoomHint: 'Go where you said you would, or don’t.',
@@ -128,7 +133,7 @@ const STRINGS = {
     howToSteps: [
       ['The setup', 'Everyone gets a secret role and a secret name from the case. Killers know their own name and see the full list of names in play, with a few decoys mixed in.'],
       ['Talk', 'Each round opens with a story event, a true clue about a killer’s secret name, and a question everyone answers. Argue, accuse, defend yourself. Never say your secret name.'],
-      ['Rooms', 'Each round a few rooms open for the night, some with a power: Lookout, Locked, Dark or Crowded. Plan out loud where you’ll go, then pick your room in secret. You don’t have to go where you said.'],
+      ['Rooms', 'Each round a few rooms open for the night, some with a power: Lookout, Locked, Dark or Crowded. Plan out loud where you’ll go, then pick your room in secret. You don’t have to go where you said. When someone dies, the morning report names the room the name was written from (unless it was the Dark room), so the killer has to lie about where they were.'],
       ['Morning peek', 'After the morning report the phone goes round once more. You see how many were with you and whether someone slipped out of your room. Maybe also a sound, a trace, a lookout sighting or a rumor. Killers who acted get a cover story. Share it, twist it or keep it.'],
       ['Secret turn', 'The phone goes around. Everyone votes or skips. Killers write a secret name next to a player: if it matches, that player dies. The detective opens a case and learns a role a few rounds later.'],
       ['Winning', 'Topping the vote enough rounds in a row gets a player thrown out. If “skip” gets the most votes, nobody tops that round. The town wins when every killer is gone. Killers win when they equal or outnumber everyone else.']
@@ -185,7 +190,12 @@ const STRINGS = {
     tabs: { report: 'التقرير', names: 'الأسماء', suspects: 'المشتبهون', notes: 'الملاحظات' },
     tonightReport: 'تقرير الليلة', newEvidence: 'دليل جديد', everyoneAnswers: 'الكل يجيب بصوت عالٍ',
     thenAlibi: 'ثم: أين كنت الليلة الماضية، ومن يشهد لك؟',
-    ask: (kind, place, r) => (kind === 'seen' ? [
+    writtenFrom: pl => `كُتب الاسم من <b>${pl}</b>.`,
+    writtenDark: 'كُتب الاسم من مكان مظلم. لا أحد يعرف أي غرفة.',
+    ask: (kind, place, r) => (kind === 'from' ? [
+      `كُتب الاسم من <b>${place}</b>. من كان هناك؟ ارفع يدك وقل كم شخصاً كان معك.`,
+      `أحد من كانوا في <b>${place}</b> كتب ذلك الاسم. ليتكلم كل من كان هناك. هل تتطابق الأعداد؟`
+    ] : kind === 'seen' ? [
       `رأى شاهد شخصاً يتسلل من <b>${place}</b>. من كان هناك؟ ارفع يدك وقل كم شخصاً كان معك حسب بطاقتك.`,
       `غادر أحدهم <b>${place}</b> في الليل. ليعترف كل من كان هناك. هل تتطابق الأعداد؟`
     ] : [
@@ -216,7 +226,7 @@ const STRINGS = {
     powers: {
       lookout: ['المراقبة', 'من يقضي الليلة هنا يعرف أين كان شخص آخر.'],
       locked: ['مقفلة', 'لا أحد يستطيع التسلل من هنا. لا يستطيع القاتل كتابة اسم من هذه الغرفة.'],
-      dark: ['مظلمة', 'لا يرى الشهود من يتسلل من هنا.'],
+      dark: ['مظلمة', 'القتل من هنا لا يُنسب إلى هذه الغرفة، ولا يرى الشهود من يتسلل.'],
       crowded: ['مزدحمة', 'من يتسلل من هنا يُرى بضعف الاحتمال.']
     },
     pickRoom: 'أين تقضي الليلة؟', pickRoomHint: 'اذهب حيث قلت، أو لا تفعل.',
@@ -262,7 +272,7 @@ const STRINGS = {
     howToSteps: [
       ['البداية', 'يحصل كل لاعب على دور سري واسم سري من القضية. القتلة يعرفون أسماءهم ويرون قائمة كل الأسماء في اللعبة، ومعها بعض الأسماء الخادعة.'],
       ['النقاش', 'تبدأ كل جولة بحدث من القصة، ودليل صحيح عن اسم أحد القتلة، وسؤال يجيب عنه الجميع. جادلوا واتهموا ودافعوا عن أنفسكم. لا تقولوا أسماءكم السرية أبداً.'],
-      ['الغرف', 'في كل جولة تُفتح بضع غرف لليلة، بعضها بقدرة: المراقبة، مقفلة، مظلمة أو مزدحمة. خطّطوا بصوت عالٍ أين ستذهبون، ثم اختر غرفتك سراً. لست مضطراً للذهاب حيث قلت.'],
+      ['الغرف', 'في كل جولة تُفتح بضع غرف لليلة، بعضها بقدرة: المراقبة، مقفلة، مظلمة أو مزدحمة. خطّطوا بصوت عالٍ أين ستذهبون، ثم اختر غرفتك سراً. لست مضطراً للذهاب حيث قلت. عندما يموت أحد، يذكر تقرير الصباح الغرفة التي كُتب منها الاسم (إلا إن كانت الغرفة المظلمة)، فيضطر القاتل للكذب بشأن مكانه.'],
       ['نظرة الصباح', 'بعد تقرير الصباح يدور الهاتف مرة أخرى. ترى كم شخصاً كان معك وهل تسلل أحد من غرفتك. وربما صوتاً أو أثراً أو مشاهدة من المراقبة أو إشاعة. القتلة الذين تحركوا يحصلون على قصة غطاء. شاركها، حرّفها أو احتفظ بها.'],
       ['الدور السري', 'يمرّ الهاتف على الجميع. الكل يصوّت أو يتخطى. يكتب القتلة اسماً سرياً بجانب لاعب: إن طابق، يموت ذلك اللاعب. ويفتح المحقق قضية ويعرف دوراً بعد بضع جولات.'],
       ['الفوز', 'من يحصل على أعلى الأصوات جولات متتالية كافية يُطرد. وإن حصل «التخطي» على أعلى الأصوات، لا يتصدّر أحد تلك الجولة. تفوز المدينة عندما يرحل كل القتلة. ويفوز القتلة عندما يساوون الباقين أو يزيدون عليهم.']

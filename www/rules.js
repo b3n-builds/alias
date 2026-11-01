@@ -4,7 +4,7 @@
 // Balance knobs, tuned with sim/simulate.cjs (see BALANCE.md for the reasoning).
 const BALANCE = {
   // Table-size rules. Uneven on purpose: player-count parity swings these games (see BALANCE.md).
-  streak: n => (n === 4 ? 2 : n === 6 || n === 9 ? 4 : 3), // top the vote this many rounds in a row to be thrown out
+  streak: n => (n === 4 ? 2 : [6, 9, 12].includes(n) ? 4 : 3), // top the vote this many rounds in a row to be thrown out
   killGap: n => (n >= 7 ? 2 : 1), // big games: a killer waits a round after writing a name
   killers: n => (n >= 10 ? 3 : n >= 7 ? 2 : 1), // 'Auto' killer count (about √n, as in Mafia)
   witnessScale: n => (n === 6 || n === 9 ? 0.4 : n === 11 ? 1.5 : 1),
@@ -16,7 +16,7 @@ const BALANCE = {
   witness: { Easy: 0.35, Medium: 0.25, Hard: 0.15 }, // chance a killer who writes a name is seen slipping away
   rooms: n => Math.min(7, Math.max(2, Math.ceil(n / 2))), // rooms open each night
   powers: n => (n >= 6 ? 2 : 1), // how many of them have a power
-  notice: 0.3, // chance each roommate notices a killer slipping out
+  notice: 0.15, // chance each roommate notices a killer slipping out
   sound: 0.1, // chance an innocent elsewhere hears the room a killer slipped out of
   rumorTrue: 2 / 3
 };
@@ -142,9 +142,10 @@ function nameClue(g, rnd = Math.random) {
 // The question points at real evidence: a place a witness saw someone leave, else a place where people were.
 function openRound(g, rnd = Math.random) {
   const clue = nameClue(g, rnd), r = g.round - 1;
-  const seen = g.round > 1 && g.report ? g.report.seen : [];
+  const rep = g.round > 1 && g.report ? g.report : { seen: [], from: [] }, from = (rep.from || []).filter(p => p >= 0);
   const held = [...new Set(Object.keys(g.alibis).filter(i => g.players[i].alive).map(i => g.alibis[i].place))];
-  const ask = seen.length ? { kind: 'seen', place: pick(seen, rnd) } : { kind: 'place', place: pick(held, rnd) };
+  const ask = from.length ? { kind: 'from', place: pick(from, rnd) }
+    : rep.seen.length ? { kind: 'seen', place: pick(rep.seen, rnd) } : { kind: 'place', place: pick(held, rnd) };
   g.event = { beat: g.beats[r % g.beats.length], ask, dare: g.dareBase + r, clue: clue && clue.key, two: !!(clue && clue.two) };
   planNight(g, rnd);
   if (clue) g.notes.push({ round: g.round, kind: 'clue', key: clue.key, who: clue.who, two: clue.two });
@@ -193,9 +194,13 @@ function resolveRound(g, rnd = Math.random) {
     P[k.by].lastKill = g.round;
     if (P[k.target].alias === k.alias) deaths.add(k.target); else wrong++;
   }
-  // a killer who wrote a name tonight may have been seen slipping away from their room
+  // a kill always names the room the name was written from (-1: the Dark room, unnamed);
+  // a killer who only missed may still have been seen slipping away
   const acted = [...new Set(kills.map(x => x.by))], killRooms = [...new Set(acted.map(k => room[k]))];
-  for (const k of acted) {
+  const landed = new Set(kills.filter(x => deaths.has(x.target)).map(x => x.by));
+  report.from = [...new Set([...landed].map(k => (power(room[k]) === 'dark' ? -1 : room[k])))];
+  for (const place of report.from) g.notes.push({ round: g.round, kind: 'from', place });
+  for (const k of acted.filter(k => !landed.has(k))) {
     const place = room[k], chance = power(place) === 'dark' ? 0 : (g.witness ?? 0.5) * (power(place) === 'crowded' ? 2 : 1);
     if (rnd() < chance && !report.seen.includes(place)) {
       report.seen.push(place);

@@ -271,6 +271,8 @@ function alibiText(g, a) {
   return a.others ? t.alibiWith(place, a.others) : t.alibiAlone(place);
 }
 const placeName = (g, i) => esc(txt(g).places[i]);
+// where a name was written from (-1: the Dark room), or where a witness saw someone slip away
+const noteText = (g, n) => n.kind === 'from' ? (n.place < 0 ? T().writtenDark : T().writtenFrom(placeName(g, n.place))) : T().witness(placeName(g, n.place));
 
 /* ---------- views ---------- */
 const VIEWS = {
@@ -363,7 +365,7 @@ const VIEWS = {
 
   talk() {
     const g = S.game, t = T(), x = txt(g), ev = g.event || {}, tab = ui.tab;
-    const seen = g.round > 1 && g.report ? g.report.seen : [];
+    const seen = g.round > 1 && g.report ? [...(g.report.from || []).map(place => ({ kind: 'from', place })), ...g.report.seen.map(place => ({ kind: 'seen', place }))] : [];
     const tabs = ['report', 'names', 'suspects', 'notes'];
     let content = '';
     if (tab === 'report') {
@@ -371,7 +373,7 @@ const VIEWS = {
         ? `<div class="pressure">${ico('vote')}<p>${t.pressure(esc(g.players[g.streak.target].name), g.streak.count, g.streakLen - g.streak.count)}</p></div>` : '';
       content = `<section class="card"><div class="card-head">${emblem(g.scenario)}<p class="label">${t.tonightReport}</p></div>
           <p class="beat">${esc(x.beats[ev.beat] || '')}</p>
-          ${seen.map(pl => `<div class="witness">${ico('seen')}<p>${t.witness(placeName(g, pl))}</p></div>`).join('')}
+          ${seen.map(n => `<div class="witness">${ico('seen')}<p>${noteText(g, n)}</p></div>`).join('')}
           ${ev.clue ? `<div class="evidence">${ico('clue')}<div><p class="label">${t.newEvidence}</p><p class="clue-text">${esc(clueText(g.lang, ev.clue, ev.two))}</p></div></div>` : ''}</section>
         <section class="question"><p class="label">${t.everyoneAnswers}</p><p class="q">${ev.ask && ev.ask.place != null ? t.ask(ev.ask.kind, placeName(g, ev.ask.place), g.round) : ''}</p><p class="muted small">${t.thenAlibi}</p></section>
         ${g.night ? `<section class="card rooms-card"><p class="label">${t.tonightRooms}</p><ul class="rooms">${g.night.rooms.map(r => { const pw = g.night.powers[r];
@@ -396,8 +398,8 @@ const VIEWS = {
     } else {
       const notes = g.notes.slice().reverse();
       content = notes.length ? `<ul class="notes-list">${notes.map(nt => {
-        const icon = nt.kind === 'clue' ? 'clue' : nt.kind === 'seen' ? 'seen' : 'check';
-        const body = nt.kind === 'clue' ? esc(clueText(g.lang, nt.key, nt.two)) : nt.kind === 'seen' ? t.witness(placeName(g, nt.place)) : t.wrongName(esc(g.players[nt.p].name));
+        const icon = nt.kind === 'clue' ? 'clue' : nt.kind === 'seen' || nt.kind === 'from' ? 'seen' : 'check';
+        const body = nt.kind === 'clue' ? esc(clueText(g.lang, nt.key, nt.two)) : nt.kind === 'clear' ? t.wrongName(esc(g.players[nt.p].name)) : noteText(g, nt);
         return `<li class="${nt.kind}">${ico(icon)}<span>${body}</span><span class="rd">${esc(t.round(nt.round))}</span></li>`;
       }).join('')}</ul>` : `<p class="muted">${t.noNotes}</p>`;
     }
@@ -415,7 +417,7 @@ const VIEWS = {
     if (!g.shown) return { bar: bar(t.secretTurn(g.idx + 1, g.order.length)), ...cover(g, p, me, t.secretTurn(g.idx + 1, g.order.length), g.idx, g.order.length) };
     if (!D) D = draft(g);
     const others = g.order.filter(i => i !== me).map(i => ({ v: i, label: g.players[i].name }));
-    const clues = g.notes.length ? `<p class="sub">${t.cluesSoFar}</p>${g.notes.filter(n => n.kind !== 'clear').map(n => `<p class="small">${n.kind === 'clue' ? esc(clueText(g.lang, n.key, n.two)) : t.witness(placeName(g, n.place))}</p>`).join('')}` : '';
+    const clues = g.notes.length ? `<p class="sub">${t.cluesSoFar}</p>${g.notes.filter(n => n.kind !== 'clear').map(n => `<p class="small">${n.kind === 'clue' ? esc(clueText(g.lang, n.key, n.two)) : noteText(g, n)}</p>`).join('')}` : '';
     const N = g.night, power = r => N.powers[r], locked = power(D.room) === 'locked';
     const rooms = N.rooms.map(r => ({ v: r, label: txt(g).places[r] + (power(r) ? ' · ' + t.powers[power(r)][0] : '') }));
     let extra = '';
@@ -451,7 +453,8 @@ const VIEWS = {
     const item = (cls, icon, html) => `<div class="ev ${cls}">${ico(icon)}<p>${html}</p></div>`;
     const night = r.dead.length ? r.dead.map(i => item('dead', 'dead', `<big>${esc(P[i].name)}</big>${esc(x.death)}`)).join('')
       : item('quiet', 'moon', `<big>${t.nothing}</big>${esc(x.quiet)}`);
-    const seen = r.seen.map(pl => item('seen', 'seen', t.witness(placeName(g, pl)))).join('');
+    const seen = [...(r.from || []).map(pl => item('seen', 'seen', noteText(g, { kind: 'from', place: pl }))),
+      ...r.seen.map(pl => item('seen', 'seen', t.witness(placeName(g, pl))))].join('');
     let vote;
     if (r.ejected !== null) vote = item('out', 'vote', `<big>${esc(t.outTitle(P[r.ejected].name))}</big>${t.outBody(g.streakLen, t.roles[P[r.ejected].role])}`);
     else if (r.top !== null) vote = item('vote', 'vote', `${t.mostVotes(esc(P[r.top].name), r.count, g.streakLen)} ${strikes(r.count, g.streakLen)}`);
