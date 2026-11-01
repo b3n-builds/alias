@@ -11,4 +11,4 @@
 - The app checks GitHub for new versions and offers the download.
 
 Install: download ALIAS.apk on your Android phone and open it (allow "install unknown apps" for your browser).
-If you installed 0.9.0, uninstall it first.
+If you installed an older build, uninstall it first.
