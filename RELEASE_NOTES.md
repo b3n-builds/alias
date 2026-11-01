@@ -1,4 +1,14 @@
-# ALIAS 1.3.0
+# ALIAS 1.3.1
+
+Fixes from a full playtest by four AI players (transcript in `playtests/agent-game-1.md`):
+
+- **Killers' tasks now count.** Before, a killer's fake task showed up as a missing task every night, which gave
+  them away by arithmetic. Now doing a task helps the town's bar, and skipping one leaves a gap: the killer chooses.
+- **Locksmith toned down.** A lock needs three or more open rooms and can't be the same room two nights running.
+  No Locksmith is dealt at tables too small for three rooms (4 players).
+- **No repeated task names** on the same night, so nobody looks like a copycat by accident.
+
+## 1.3.0
 
 More to do, more to say, more to lie about.
 

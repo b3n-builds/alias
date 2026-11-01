@@ -9,7 +9,7 @@ function loadGame() {
   vm.createContext(ctx);
   for (const f of [...files, 'rules.js']) vm.runInContext(fs.readFileSync(path.join(www, f), 'utf8'), ctx, { filename: f });
   // top-level consts are not context properties; hand them out explicitly
-  return vm.runInContext(`({ BALANCE, MODES, SKIP, POWERS, ABILITIES, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, planNight, letters, clueFits, clueKeys,
+  return vm.runInContext(`({ BALANCE, MODES, SKIP, POWERS, ABILITIES, TASK_NAMES, SCENARIOS, shuffle, pick, killerCount, newGame, assignAlibis, planNight, letters, clueFits, clueKeys,
     nameClue, openRound, canKill, openCase, tally, resolveRound, winnerOf })`, ctx);
 }
 

@@ -485,11 +485,14 @@ const VIEWS = {
       else game = `<p class="small">${tg.kind === 1 ? t.taskCode(tg.seq.join(' ')) : t.taskOrder(tg.seq.length)}</p>
         <div class="keys">${tg.keys.map(k => `<button class="key" data-act="taskTap" data-v="${k}" aria-pressed="${tg.kind === 2 && k <= D.step}">${k}</button>`).join('')}</div>
         ${tg.kind === 1 ? `<p class="muted small">${t.taskProgress(D.step, tg.seq.length)}</p>` : ''}`;
-      taskHtml = `<section class="panel"><h3>${ico('check')}${t.taskTitle}</h3><p>${t.taskAt(t.taskNames[task.kind % t.taskNames.length], placeName(g, task.room))}</p>
+      taskHtml = `<section class="panel"><h3>${ico('check')}${t.taskTitle}</h3><p>${t.taskAt(t.taskNames[(task.name ?? task.kind) % t.taskNames.length], placeName(g, task.room))}</p>
         ${p.role === 'killer' ? `<p class="muted small">${t.taskFake}</p>` : ''}${game}</section>`;
     }
+    // a locksmith can't lock with fewer than three rooms open, or lock last night's room again
+    const lastLock = p.lastLock && p.lastLock.round === g.round - 1 ? p.lastLock.room : null;
+    const lockable = N.rooms.length >= 3 ? N.rooms.filter(r => r !== lastLock).map(r => ({ v: r, label: txt(g).places[r] })) : [];
     const powerHtml = p.power ? `<section class="panel"><h3>${ico('detective')}${t.abilities[p.power][0]}</h3><p class="muted small">${t.abilities[p.power][1]} ${t.powerHint}</p>
-      ${chips('act', p.power === 'locksmith' ? N.rooms.map(r => ({ v: r, label: txt(g).places[r] })) : others, D.act)}</section>` : '';
+      ${p.power !== 'locksmith' ? chips('act', others, D.act) : lockable.length ? chips('act', lockable, D.act) : `<p class="small">${t.lockNone}</p>`}</section>` : '';
     const ok = D.room !== null && D.vote !== null && (locked || D.sab || D.kills.every(s => (s.t === null) === (s.a === null))) && (D.caseT === null) === (D.caseA === null);
     return { bar: bar(t.secretTurn(g.idx + 1, g.order.length)), body: `<div class="me" data-paper="${sc.look.paper}">${ico(p.role)}<div><b>${esc(p.alias)}</b><small>${esc(p.name)} · ${t.roles[p.role]}</small></div></div>
         <section class="panel"><h3>${ico('pin')}${t.pickRoom}</h3><p class="muted small">${p.role === 'killer' ? t.pickRoomKiller : t.pickRoomHint}</p>${chips('room', rooms, D.room)}

@@ -15,7 +15,7 @@
 //   lean to a Dark room and never pick Locked. Morning peek info is shared at the table: roommates of a killer
 //   who slipped out point at that room, sounds point at it more weakly, and lookout sightings or rumors that put
 //   someone in a killer's room point at that person.
-// - 1.3: innocents go to their task room 75% of the time and always finish it; killers sabotage the bar once it
+// - 1.3: players not acting go to their task room 75% of the time and always finish it (killer tasks count too); killers sabotage the bar once it
 //   is 60% full; trackers follow their top suspect; guards, journalists and locksmiths pick at random; the lead
 //   searches a random room. Open votes and the search headcount are not modelled (people use them to catch room
 //   lies, which the bots do not tell).
@@ -92,12 +92,12 @@ function play(G, n, settings, skill, rnd) {
     for (const i of order) {
       const acting = isK(i) && G.canKill(g, i);
       if (acting) g.picks[i] = byPower('dark').length && rnd() < 0.7 ? byPower('dark')[0] : G.pick(free, rnd);
-      else if (!isK(i) && rnd() < TASK_GO) g.picks[i] = N.tasks[i].room; // innocents mostly go do their task
+      else if (rnd() < TASK_GO) g.picks[i] = N.tasks[i].room; // everyone not acting mostly goes to do their task (killers blend in)
       else g.picks[i] = byPower('locked').length && rnd() < 0.4 ? byPower('locked')[0] : G.pick(N.rooms, rnd);
     }
     // tasks, powers and the lead's search
     g.taskDone = {}; g.acts = {}; g.sabotage = [];
-    for (const i of order) if (!isK(i)) g.taskDone[i] = true;
+    for (const i of order) g.taskDone[i] = true;
     for (const i of order) if (P[i].power) {
       const others = order.filter(j => j !== i);
       if (P[i].power === 'locksmith') g.acts[i] = G.pick(N.rooms, rnd);

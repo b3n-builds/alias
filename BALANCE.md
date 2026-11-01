@@ -83,6 +83,13 @@ not as exact win rates.
 10. **The detective must name the secret name to open a case (1.3).** A wrong name opens nothing, and the
    detective learns that player is not that name. The bot detective guesses among names that fit every clue so
    far; that cost the town a few points, still inside the target range.
+11. **Agent playtest fixes (1.3.1).** Four AI agents played a full game ([playtests/agent-game-1.md](playtests/agent-game-1.md)). Three flaws:
+   killers' fake tasks showed up as a missing task in the room count and the public bar every night, which decided
+   the game on arithmetic; the Locksmith blocked the killer 5 nights of 7 at four players (two rooms, so a lock
+   covers half the map); and two players got the same task name, which made an innocent look like a copycat.
+   Now killers' tasks count like everyone's (skipping one leaves a gap, so the killer has a real choice), a lock
+   needs three or more open rooms and can't repeat a room two nights running (no Locksmith is dealt at tables
+   too small for three rooms), and task names never repeat within a night.
 
 ## What deliberately did not change
 
@@ -93,9 +100,9 @@ delayed result, pass-and-play, and vote streaks. Balance came from the dials aro
 
 | Players         | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
 |-----------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| Easy            | 42% | 43% | 38% | 48% | 44% | 44% | 58% | 57% | 54% |
-| Medium          | 45% | 46% | 45% | 50% | 46% | 45% | 54% | 56% | 50% |
-| Hard            | 44% | 48% | 42% | 53% | 44% | 46% | 54% | 49% | 50% |
+| Easy            | 42% | 49% | 48% | 48% | 39% | 38% | 50% | 43% | 39% |
+| Medium          | 47% | 55% | 53% | 46% | 42% | 37% | 48% | 44% | 40% |
+| Hard            | 47% | 54% | 53% | 50% | 37% | 36% | 46% | 42% | 37% |
 | Avg. rounds (M) | 3.5 | 6.2 | 8.5 | 8.3 | 11  | 14  | 11  | 14  | 17  |
 
 - Penalty mode leans to the town (29–41% killer wins); Frenzy leans to the killers (61–96%). The setup screen says so.

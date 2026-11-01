@@ -2,7 +2,7 @@
 const assert = require('assert');
 const { loadGame } = require('../sim/load.cjs');
 const G = loadGame();
-const { SCENARIOS, BALANCE, SKIP, ABILITIES, planNight, openCase, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
+const { SCENARIOS, BALANCE, SKIP, ABILITIES, TASK_NAMES, planNight, openCase, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
 const names = n => Array.from({ length: n }, (_, i) => 'P' + i);
 const roleIdx = (g, r) => g.players.map((p, i) => (p.role === r ? i : -1)).filter(i => i >= 0);
 const set = (n, extra = {}) => ({ scenario: 'noir', lang: 'en', mode: 'classic', minutes: 2, killers: 'auto', ...extra });
@@ -96,7 +96,11 @@ for (const votes of ['closed', 'open']) for (let n = 4; n <= 12; n++) {
   const civ = g.players.filter(p => p.role === 'civilian');
   ok(civ.every(p => ABILITIES.includes(p.power)) && g.players.every(p => p.role === 'civilian' || !p.power), 'civilians and only civilians have powers');
   if (votes === 'open') ok(!civ.some(p => p.power === 'journalist'), 'no journalist with open votes');
-  ok(new Set(civ.map(p => p.power)).size === Math.min(civ.length, votes === 'open' ? 3 : 4), 'powers spread before repeating');
+  const kit = 4 - (votes === 'open' ? 1 : 0) - (BALANCE.rooms(n) < 3 ? 1 : 0);
+  ok(new Set(civ.map(p => p.power)).size === Math.min(civ.length, kit), 'powers spread before repeating');
+  if (BALANCE.rooms(n) < 3) ok(!civ.some(p => p.power === 'locksmith'), 'no locksmith with only two rooms');
+  const N = planNight(g), tnames = Object.values(N.tasks).map(x => x.name);
+  ok(new Set(tnames).size === tnames.length && tnames.every(x => x >= 0 && x < TASK_NAMES), 'task names differ within a night');
   ok(g.tasks.goal === BALANCE.taskGoal(n - g.settings.killers), 'task goal');
 }
 {
@@ -109,11 +113,11 @@ for (const votes of ['closed', 'open']) for (let n = 4; n <= 12; n++) {
   };
   let { g, k, inn } = setupNight();
   resolveRound(g);
-  ok(g.tasks.done === inn.length, 'innocent tasks count, killer tasks are fake');
+  ok(g.tasks.done === 6, 'every finished task counts, including a killer task');
   ({ g, k, inn } = setupNight()); g.picks[inn[0]] = g.night.rooms.find(r => r !== g.night.tasks[inn[0]].room); resolveRound(g);
-  ok(g.tasks.done === inn.length - 1, 'a task only counts in its room');
+  ok(g.tasks.done === 5, 'a task only counts in its room');
   ({ g, k, inn } = setupNight()); g.sabotage = [{ by: k, kind: 'bar' }]; resolveRound(g);
-  ok(g.tasks.done === Math.max(0, inn.length - BALANCE.sabotage(6)) && g.report.sabotage[0] === 'bar' && g.players[k].lastKill === 1, 'bar sabotage undoes tasks and rests the pen');
+  ok(g.tasks.done === 6 - BALANCE.sabotage(6) && g.report.sabotage[0] === 'bar' && g.players[k].lastKill === 1, 'bar sabotage undoes tasks and rests the pen');
   ({ g, k } = setupNight()); g.sabotage = [{ by: k, kind: 'lights' }]; resolveRound(g);
   ok(g.report.lights, 'lights sabotage skips the peek');
   // guard saves a right name; the guard hears about it
@@ -127,6 +131,18 @@ for (const votes of ['closed', 'open']) for (let n = 4; n <= 12; n++) {
   g.players[inn[0]].power = 'locksmith'; g.acts[inn[0]] = g.picks[k];
   g.kills = [{ by: k, target: inn[1], alias: g.players[inn[1]].alias }]; resolveRound(g);
   ok(g.players[inn[1]].alive && g.players[k].lastKill == null, 'locksmith blocks the killer');
+  // the same lock again the next night does nothing
+  const room = g.acts[inn[0]] ?? g.players[inn[0]].lastLock.room;
+  g.night.rooms.includes(room) || g.night.rooms.push(room); g.night.powers = {};
+  g.picks = { [k]: room, [inn[1]]: room }; g.acts = { [inn[0]]: room };
+  g.kills = [{ by: k, target: inn[1], alias: g.players[inn[1]].alias }]; resolveRound(g);
+  ok(!g.players[inn[1]].alive, 'no locking the same room two nights running');
+  // and no lock at all with only two rooms open
+  ({ g, k, inn } = setupNight());
+  g.night.rooms = g.night.rooms.slice(0, 2); g.players[inn[0]].power = 'locksmith';
+  g.players.forEach((p, i) => { g.picks[i] = g.night.rooms[0]; }); g.acts[inn[0]] = g.night.rooms[0];
+  g.kills = [{ by: k, target: inn[1], alias: g.players[inn[1]].alias }]; resolveRound(g);
+  ok(!g.players[inn[1]].alive, 'no lock with two rooms');
   // tracker and journalist see the truth
   ({ g, k, inn } = setupNight());
   g.players[inn[0]].power = 'tracker'; g.acts[inn[0]] = k; g.players[inn[1]].power = 'journalist'; g.acts[inn[1]] = k;
