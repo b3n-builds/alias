@@ -1,4 +1,8 @@
-# ALIAS 1.0
+# ALIAS 1.0.1
+
+- Fix: long labels in the top bar no longer push screens wider than the phone.
+
+## 1.0
 
 - 21 cases (17 new), each with its own look, story, names, alibi places, events and questions. Seven are set in Egypt and the Arab world.
 - Full Arabic version: switch on the home screen.
