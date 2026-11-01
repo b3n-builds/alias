@@ -1,0 +1,893 @@
+<title>ALIAS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Cabin+Sketch:wght@400;700&family=Alegreya:wght@400;700&family=Reem+Kufi:wght@400;600&family=Amiri:wght@400;700&family=Michroma&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one phone-width column. Each case re-themes the whole app (palette, type, texture, paper);
+   private screens are that world's paper: manila file, ruled notebook, parchment, crew badge. */
+:root {
+  --bg: #15171d; --surface: #1f222b; --rule: #363a48; --fg: #ddd7c8; --dim: #9c9685;
+  --accent: #d8a74f; --on-accent: #15171d; --danger: #d0503f; --good: #86b47f;
+  --paper: #e4d4ab; --paper-ink: #2b2417; --paper-dim: #74664a; --paper-bg: #e4d4ab;
+  --display: "Special Elite", "Courier New", monospace;
+  --body: "Courier Prime", "Courier New", monospace;
+  --glow: radial-gradient(ellipse 90% 45% at 50% -8%, rgb(216 167 79 / .16), transparent 70%);
+  --texture: repeating-linear-gradient(102deg, transparent 0 26px, rgb(190 205 230 / .04) 26px 27px);
+  --tex-size: auto;
+  color-scheme: dark;
+}
+body[data-sc="school"] {
+  --bg: #1b2822; --surface: #233329; --rule: #3e5446; --fg: #eeede4; --dim: #a5b0a2;
+  --accent: #ead66c; --on-accent: #1b2822; --danger: #e8806b; --good: #a6d892;
+  --paper: #f6f1e4; --paper-ink: #22303a; --paper-dim: #6a7680;
+  --paper-bg: linear-gradient(90deg, transparent 34px, #e6a3a0 34px 36px, transparent 36px), repeating-linear-gradient(transparent 0 29px, #b7d0e8 29px 30px), #f6f1e4;
+  --display: "Cabin Sketch", "Comic Sans MS", cursive;
+  --body: "Alegreya", Georgia, serif;
+  --glow: radial-gradient(ellipse 80% 45% at 50% 0%, rgb(255 255 255 / .07), transparent 70%);
+  --texture: radial-gradient(circle at 18% 22%, rgb(255 255 255 / .05), transparent 30%), radial-gradient(circle at 82% 64%, rgb(255 255 255 / .04), transparent 34%), repeating-linear-gradient(0deg, transparent 0 39px, rgb(255 255 255 / .025) 39px 40px);
+}
+body[data-sc="cairo"] {
+  --bg: #23150e; --surface: #2f1e15; --rule: #5a3b29; --fg: #f3e4c9; --dim: #bca386;
+  --accent: #4fc4b2; --on-accent: #1d120c; --danger: #e46b4f; --good: #9bcf7c;
+  --paper: #edd9ae; --paper-ink: #3d2515; --paper-dim: #7f6243;
+  --paper-bg: radial-gradient(ellipse at center, #f2e1bb 40%, #dcc08a 100%);
+  --display: "Reem Kufi", "Trebuchet MS", sans-serif;
+  --body: "Amiri", Georgia, serif;
+  --glow: radial-gradient(ellipse 90% 50% at 50% -6%, rgb(236 150 60 / .24), transparent 70%);
+  --texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%234fc4b2' stroke-opacity='.10'%3E%3Crect x='17' y='17' width='22' height='22'/%3E%3Crect x='17' y='17' width='22' height='22' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size: 56px 56px;
+}
+body[data-sc="space"] {
+  --bg: #0a111e; --surface: #101a2c; --rule: #21324e; --fg: #d8e6f6; --dim: #7f93b0;
+  --accent: #62d6ff; --on-accent: #06101c; --danger: #ff6170; --good: #70e3a8;
+  --paper: #e7eef6; --paper-ink: #0f1b2c; --paper-dim: #5a6b82;
+  --paper-bg: linear-gradient(#62d6ff 0 8px, transparent 8px), #e7eef6;
+  --display: "Michroma", "Arial Black", sans-serif;
+  --body: "IBM Plex Mono", "Courier New", monospace;
+  --glow: radial-gradient(ellipse 90% 55% at 85% -10%, rgb(98 214 255 / .16), transparent 70%);
+  --texture: radial-gradient(1.4px 1.4px at 14% 22%, rgb(255 255 255 / .7) 50%, transparent 51%), radial-gradient(1px 1px at 63% 41%, rgb(255 255 255 / .5) 50%, transparent 51%), radial-gradient(1.2px 1.2px at 37% 78%, rgb(255 255 255 / .55) 50%, transparent 51%), radial-gradient(1px 1px at 86% 12%, rgb(255 255 255 / .45) 50%, transparent 51%), radial-gradient(1.6px 1.6px at 78% 88%, rgb(98 214 255 / .6) 50%, transparent 51%);
+  --tex-size: 260px 260px;
+}
+
+html, body { height: 100%; }
+body { background: var(--glow), var(--bg); background-attachment: fixed; color: var(--fg); font: 17px/1.55 var(--body); transition: background-color .4s; }
+body::after { content: ""; position: fixed; inset: 0; background-image: var(--texture); background-size: var(--tex-size); pointer-events: none; z-index: 0; }
+body[data-sc="noir"]::after { animation: rain 1.6s linear infinite; }
+@keyframes rain { to { background-position: -40px 220px; } }
+#app {
+  position: relative; z-index: 1; max-width: 540px; margin: 0 auto; min-height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 8px 32px; display: flex; flex-direction: column;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { flex: none; }
+.ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.emblem { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* header */
+.top { display: flex; align-items: center; gap: 10px; padding-block: 10px; border-bottom: 1px solid var(--rule); }
+.brand { font-family: var(--display); letter-spacing: .3em; font-size: 17px; }
+.where { color: var(--dim); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.tools { margin-left: auto; display: flex; gap: 6px; flex: none; }
+.tbtn { background: none; border: 1px solid var(--rule); border-radius: 6px; min-height: 38px; min-width: 38px; padding: 6px 10px; font-size: 13px; color: var(--dim); display: inline-flex; align-items: center; gap: 6px; }
+.tbtn .ico { width: 18px; height: 18px; }
+
+/* screens */
+.screen { display: flex; flex-direction: column; gap: 22px; padding-top: 20px; flex: 1; animation: page .35s cubic-bezier(.2, .7, .2, 1); }
+@keyframes page { from { opacity: .3; transform: translateY(10px); } }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+.label { font-family: var(--body); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.label span { color: var(--dim); font-weight: 400; letter-spacing: .04em; }
+.muted { color: var(--dim); }
+.small { font-size: 14px; }
+.block { display: flex; flex-direction: column; gap: 10px; }
+.panel { background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.panel h3 { font-family: var(--display); font-size: 21px; display: flex; align-items: center; gap: 10px; }
+.panel h3 .ico { color: var(--accent); }
+
+/* setup */
+.hero { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; padding-block: 14px 4px; }
+.hero svg { width: 92px; height: 92px; color: var(--accent); }
+.mark { font-family: var(--display); font-size: clamp(50px, 16vw, 80px); letter-spacing: .14em; line-height: 1; }
+.tag { color: var(--dim); grid-column: 1 / -1; max-width: 40ch; }
+.how { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; counter-reset: s; }
+.how li { counter-increment: s; border: 1px solid var(--rule); border-radius: 10px; padding: 10px; font-size: 13px; line-height: 1.35; color: var(--dim); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.how li::before { content: counter(s); display: block; font-family: var(--display); font-size: 22px; color: var(--accent); margin-bottom: 4px; }
+.how b { color: var(--fg); display: block; }
+.cases { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.case { position: relative; border: 1px solid var(--rule); border-radius: 12px; padding: 14px 12px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; background: color-mix(in srgb, var(--surface) 80%, transparent); transition: border-color .2s, transform .2s; }
+.case input, .mode input { position: absolute; opacity: 0; pointer-events: none; }
+.case:has(input:focus-visible), .mode:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.case:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); transform: translateY(-2px); }
+.case svg { width: 44px; height: 44px; color: var(--accent); }
+.case b { font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.2; }
+.case small { color: var(--dim); font-size: 13px; line-height: 1.35; }
+.case.random { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 12px; }
+.pips { display: inline-flex; gap: 3px; align-items: center; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.pips i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-block; }
+.pips i.on { background: currentColor; }
+.pips.easy { color: var(--good); } .pips.medium { color: var(--accent); } .pips.hard { color: var(--danger); }
+.pips span { margin-left: 4px; }
+
+.names { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: n; }
+.names li { display: flex; gap: 8px; align-items: center; counter-increment: n; }
+.names li::before { content: counter(n, decimal-leading-zero); color: var(--dim); font-size: 13px; width: 2ch; font-variant-numeric: tabular-nums; }
+.names input { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; min-height: 46px; }
+.names input:focus { border-color: var(--accent); outline: none; }
+.x { width: 46px; height: 46px; background: none; border: 1px solid var(--rule); border-radius: 8px; color: var(--dim); font-size: 20px; flex: none; }
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { position: relative; display: flex; gap: 12px; align-items: center; border: 1px solid var(--rule); border-radius: 10px; padding: 12px; cursor: pointer; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.mode:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.mode .ico { color: var(--accent); width: 26px; height: 26px; }
+.mode b, .toggle b { display: block; }
+.mode small, .toggle small { color: var(--dim); font-size: 14px; line-height: 1.4; display: block; }
+.toggle { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 22px; height: 22px; margin: 2px 0 0; flex: none; }
+.toggle:has(input:disabled) { opacity: .5; cursor: default; }
+.stepper { display: flex; align-items: center; gap: 16px; }
+.stepper button { width: 50px; height: 46px; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; font-size: 20px; }
+.stepper output { font-variant-numeric: tabular-nums; min-width: 6ch; text-align: center; font-family: var(--display); font-size: 20px; }
+
+.err { color: var(--danger); min-height: 1.5em; }
+.primary { width: 100%; min-height: 56px; border: 0; border-radius: 10px; background: var(--accent); color: var(--on-accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 12px 16px; box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 30%, transparent); transition: transform .1s; }
+.primary:active { transform: scale(.98); }
+.primary:disabled { background: var(--rule); color: var(--dim); cursor: default; box-shadow: none; }
+.ghost { width: 100%; min-height: 46px; background: none; border: 1px dashed var(--rule); border-radius: 10px; color: var(--dim); }
+.foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 12px; }
+
+/* story */
+.brief-emblem { width: 120px; height: 120px; color: var(--accent); align-self: center; }
+.brief-emblem path, .brief-emblem circle, .brief-emblem ellipse, .brief-emblem rect { stroke-dasharray: 400; animation: draw 1.6s ease-out both; }
+@keyframes draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+.brief-title { font-family: var(--display); font-size: clamp(38px, 12vw, 58px); line-height: 1.05; text-align: center; }
+.brief-meta { display: flex; justify-content: center; }
+.intro { font-size: 19px; line-height: 1.65; border-left: 3px solid var(--accent); padding-left: 16px; }
+.facts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.facts li { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.facts b { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.facts span { color: var(--dim); font-size: 13px; }
+
+/* pass-the-phone cover */
+.cover { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; padding-block: 28px; }
+.cover svg { width: 64px; height: 64px; color: var(--dim); }
+.who { font-family: var(--display); font-size: clamp(38px, 13vw, 60px); overflow-wrap: anywhere; line-height: 1.1; }
+.cover .primary { margin-top: 20px; }
+.peek { display: flex; gap: 6px; } .peek i { width: 26px; height: 4px; border-radius: 2px; background: var(--rule); } .peek i.on { background: var(--accent); }
+
+/* case file (paper) */
+.file { background: var(--paper-bg); color: var(--paper-ink); border-radius: 3px 10px 10px 10px; padding: 30px 20px 22px; position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 18px; box-shadow: 0 14px 34px rgb(0 0 0 / .45); animation: slide .45s cubic-bezier(.2, .8, .2, 1); overflow: hidden; }
+body[data-sc="school"] .file { padding-left: 50px; line-height: 30px; }
+@keyframes slide { from { transform: translateY(40px) rotate(1.5deg); opacity: 0; } }
+.file .tab { position: absolute; top: 0; left: 0; background: color-mix(in srgb, var(--paper-ink) 10%, transparent); padding: 4px 14px; border-radius: 0 0 8px 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file .label { color: var(--paper-dim); }
+.file .wm { position: absolute; right: -18px; bottom: -18px; width: 170px; height: 170px; opacity: .1; }
+.alias { font-family: var(--display); font-size: clamp(34px, 11vw, 50px); line-height: 1.1; margin-bottom: 6px; }
+.stamp { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); text-transform: uppercase; letter-spacing: .1em; font-size: 26px; border: 3px solid currentColor; border-radius: 4px; padding: 2px 14px; transform: rotate(-5deg); margin-block: 6px 10px; animation: slam .5s .25s cubic-bezier(.3, 1.6, .5, 1) both; }
+.stamp .ico { width: 26px; height: 26px; }
+@keyframes slam { from { transform: scale(2.6) rotate(-14deg); opacity: 0; } }
+.stamp.killer { color: #b3261e; } .stamp.detective { color: #1f4f86; } .stamp.civilian { color: var(--paper-ink); }
+.file .alibi { border-top: 1px dashed currentColor; padding-top: 10px; margin-top: 6px; }
+.warn { font-weight: 700; display: flex; gap: 8px; align-items: center; }
+
+/* talk */
+.ring { position: relative; width: min(66vw, 230px); aspect-ratio: 1; max-width: 100%; align-self: center; display: grid; place-items: center; }
+.ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ring-bg { fill: none; stroke: var(--rule); stroke-width: 6; }
+.ring-fg { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .25s linear, stroke .3s; }
+.ring.low .ring-fg { stroke: var(--danger); }
+.clock { font-family: var(--display); font-size: clamp(44px, 15vw, 64px); line-height: 1; font-variant-numeric: tabular-nums; }
+.ring.low .clock { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.06); } }
+.ring .sub { position: absolute; bottom: 24%; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.event { border-radius: 12px; overflow: hidden; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 92%, transparent); }
+.event-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px 0; }
+.event-head svg { width: 38px; height: 38px; color: var(--accent); }
+.beat { padding: 10px 16px 16px; font-size: 18px; line-height: 1.6; }
+.evidence { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); border-top: 1px solid color-mix(in srgb, var(--accent) 40%, var(--rule)); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.evidence .ico { color: var(--accent); width: 28px; height: 28px; margin-top: 2px; }
+.clue-text { font-family: var(--display); font-size: 21px; line-height: 1.3; }
+.question { border: 1px dashed var(--accent); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.q { font-size: 19px; font-style: italic; }
+.pressure { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; background: color-mix(in srgb, var(--danger) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--rule)); }
+.pressure .ico { color: var(--danger); }
+.aliases { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.aliases li { border: 1px solid var(--rule); border-radius: 6px; padding: 6px 12px; font-family: var(--display); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.roster { list-style: none; margin: 0; padding: 0; }
+.roster li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 11px; border-bottom: 1px solid var(--rule); }
+.roster li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.roster .st { color: var(--dim); font-size: 14px; text-align: right; display: inline-flex; align-items: center; gap: 8px; }
+.roster .out > span:first-child { text-decoration: line-through; color: var(--dim); }
+.roster .clr { color: var(--good); }
+.strikes { display: inline-flex; gap: 3px; } .strikes i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--danger); } .strikes i.on { background: var(--danger); }
+.notes-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.notes-list li { display: flex; gap: 10px; font-size: 15px; }
+.notes-list li span { color: var(--dim); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; flex: none; width: 4.5em; padding-top: 3px; }
+
+/* secret turn */
+.me { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--paper-bg); color: var(--paper-ink); }
+.me .ico { width: 28px; height: 28px; }
+.me b { font-family: var(--display); font-weight: 400; font-size: 20px; display: block; line-height: 1.2; }
+.me small { color: var(--paper-dim); font-size: 13px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 46px; padding: 8px 14px; background: none; border: 1px solid var(--rule); border-radius: 8px; overflow-wrap: anywhere; transition: background .15s, border-color .15s; }
+.chip.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.panel.notes { border-color: color-mix(in srgb, var(--danger) 60%, var(--rule)); }
+.panel.notes h3 .ico { color: var(--danger); }
+.panel hr { border: 0; border-top: 1px dashed var(--rule); width: 100%; margin: 4px 0; }
+.sub { font-size: 12px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+.result { border-left: 3px solid var(--accent); padding-left: 12px; animation: slide .4s both; }
+
+/* morning */
+.dawn { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding-block: 6px; }
+.dawn h1 { font-family: var(--display); font-size: clamp(34px, 11vw, 48px); }
+.report { display: flex; flex-direction: column; gap: 12px; }
+.ev { display: flex; gap: 14px; align-items: flex-start; padding: 16px; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--rule); border-left-width: 4px; border-radius: 4px 10px 10px 4px; animation: slide .5s both; }
+.ev:nth-child(2) { animation-delay: .5s; } .ev:nth-child(3) { animation-delay: 1s; } .ev:nth-child(4) { animation-delay: 1.5s; } .ev:nth-child(n+5) { animation-delay: 2s; }
+.ev .ico { width: 28px; height: 28px; margin-top: 1px; }
+.ev.dead { border-left-color: var(--danger); } .ev.dead .ico { color: var(--danger); }
+.ev.clue { border-left-color: var(--good); } .ev.clue .ico { color: var(--good); }
+.ev.quiet { border-left-color: var(--accent); } .ev.quiet .ico { color: var(--accent); }
+.ev.vote .ico { color: var(--dim); } .ev.out { border-left-color: var(--accent); } .ev.out .ico { color: var(--accent); }
+.ev big { display: block; font-family: var(--display); font-size: 21px; line-height: 1.3; margin-bottom: 2px; }
+
+/* verdict */
+.verdict { font-family: var(--display); font-size: clamp(40px, 13vw, 64px); line-height: 1.05; }
+.verdict-stamp { align-self: flex-start; font-family: var(--display); text-transform: uppercase; font-size: 22px; letter-spacing: .12em; border: 3px solid currentColor; padding: 2px 14px; transform: rotate(-4deg); animation: slam .5s .2s both; }
+.verdict-stamp.town { color: var(--good); } .verdict-stamp.killers { color: var(--danger); }
+.files-wrap { overflow-x: auto; }
+.files { width: 100%; border-collapse: collapse; font-size: 14px; }
+.files th { text-align: left; font-weight: 700; color: var(--accent); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 8px 6px 0; }
+.files td { padding: 10px 8px 10px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+.files .k { color: var(--danger); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div id="app"></div>
+
+<script id="logic">
+// Pure game rules (no DOM) so they can be checked outside the page.
+// Each scenario has its own names, story, alibi places, events, questions and difficulty.
+// Every name list must hold 12 players + its decoys.
+const SCENARIOS = {
+  school: {
+    title: 'Ashgrove Academy', level: 'Easy', decoys: 2, caseRounds: 2, minutes: 3, listLabel: 'Nicknames on the register',
+    hook: 'Students vanish from a boarding school after lights-out.',
+    intro: 'Ashgrove Academy has stood on its hill for two hundred years. This term, students have started disappearing after lights-out, and every one of them was known only by a nickname. Somebody in this room keeps a list of those nicknames. Find them before the next bell.',
+    death: 'was missing from their bed at roll call.', quiet: 'Every bed was full at roll call.',
+    names: ['Prefect', 'Bookworm', 'Head Girl', 'Class Clown', 'Teacher’s Pet', 'Night Owl', 'Captain', 'Chess Kid', 'Daydreamer',
+      'Lab Rat', 'Choirboy', 'Stargazer', 'New Kid', 'Ink Stain', 'Sleepwalker', 'Prankster', 'Rowing Blue', 'Library Ghost'],
+    places: ['the Library', 'the Chapel', 'the Boathouse', 'the Science Lab', 'the Kitchens', 'the Bell Tower', 'the Music Room'],
+    beats: [
+      'The bell tower rang at three in the morning. Nobody admits to touching the rope.',
+      'A page was torn out of the school register. The ink on the next page was still wet.',
+      'Muddy footprints lead from the boathouse to the dormitory stairs, then stop.',
+      'A note was left on the headmaster’s desk. It says only: “I know your nickname.”',
+      'The library’s restricted section was found unlocked, and one shelf was empty.',
+      'A lantern was seen moving across the playing fields long after midnight.'
+    ],
+    questions: [
+      'Who was the last person you saw before lights-out, and what were they doing?',
+      'Which teacher would you trust with a secret, and why?',
+      'What did you hear in the corridor last night?',
+      'Where do you hide when you skip class?',
+      'What did you write in your diary last night?',
+      'Which club would you never join, and why?'
+    ]
+  },
+  noir: {
+    title: 'Rain City', level: 'Medium', decoys: 3, caseRounds: 3, minutes: 2, listLabel: 'Aliases in the city',
+    hook: 'A 1940s city, a vigilante, and a little black ledger.',
+    intro: 'It has been raining for eleven days. The city’s crooks are turning up dead, and the papers call it justice. Every soul in this bar goes by an alias, and someone is writing those aliases in a little black ledger. Keep your name to yourself.',
+    death: 'was found face-down in the rain.', quiet: 'The rain fell, and nobody fell with it.',
+    names: ['The Raven', 'Velvet', 'Ghost Pepper', 'Silk', 'Static', 'Blue Note', 'Cinder', 'Dahlia', 'Fedora',
+      'Gin Rummy', 'Halflight', 'Ivory', 'Jackknife', 'Lucky Seven', 'Midnight', 'Nickel', 'Porcelain', 'Quill',
+      'Rainmaker', 'Smoke', 'Tin Whistle', 'Umbrella', 'Whisper', 'Zero', 'Copper', 'Lantern'],
+    places: ['the Blue Moon Bar', 'the Pier', 'the All-Night Diner', 'the Train Station', 'the Pawn Shop', 'the Boxing Gym', 'the Old Cinema'],
+    beats: [
+      'The jukebox at the Blue Moon played the same song all night. Someone kept feeding it nickels.',
+      'A wet trench coat was found hanging in the wrong closet at the precinct.',
+      'The ledger’s ink matches a pen sold at only one shop downtown.',
+      'A cab driver remembers a fare who paid in silver dollars and never said a word.',
+      'Someone set fire to the newspaper’s back room. Only the obituaries survived.',
+      'A torn matchbook was left on the pier with half a phone number burned away.'
+    ],
+    questions: [
+      'What’s your drink, and who paid for it last night?',
+      'Who in this city owes you money?',
+      'What were you doing when the streetlights went out?',
+      'Who did you see leaving the bar early?',
+      'What’s in your coat pocket right now?',
+      'Why did you come to this city in the first place?'
+    ]
+  },
+  cairo: {
+    title: 'The Old Souk', level: 'Medium', decoys: 3, caseRounds: 3, minutes: 2, listLabel: 'Market names in the souk',
+    hook: 'Merchants, spies and a hired assassin in old Cairo’s bazaar.',
+    intro: 'Under the lamps of the old souk, everyone trades under a market name. Now merchants are being found in the alleys behind the spice stalls, and the word is that a hired assassin walks among you. Haggle, listen, and never give away your market name.',
+    death: 'was found in the alley behind the spice stalls.', quiet: 'The market opened. Every stall was staffed.',
+    names: ['The Spice Seller', 'Brass Lamp', 'The Carpet Weaver', 'Lantern Boy', 'The Perfumer', 'Coppersmith', 'The Calligrapher',
+      'Hookah Man', 'Date Merchant', 'The Storyteller', 'Saffron', 'The Goldsmith', 'Tea Boy', 'The Scribe', 'Jasmine',
+      'The Tentmaker', 'Glass Blower', 'Rosewater', 'The Water Carrier', 'Mint Seller'],
+    places: ['the Spice Market', 'the Coffeehouse', 'the Mosque Courtyard', 'Copper Street', 'the Rooftop Terrace', 'the Old Gate', 'the Bathhouse'],
+    beats: [
+      'The lamp-lighter swears one lantern on Copper Street went out on its own.',
+      'A whole sack of saffron was emptied into the fountain before dawn.',
+      'A stranger asked three merchants for directions to the same stall.',
+      'Someone paid for coffee with a coin from another century.',
+      'The muezzin saw a shadow crossing the rooftops before the dawn call.',
+      'A carpet was delivered to the wrong house with a note pinned inside.'
+    ],
+    questions: [
+      'What did you sell today, and to whom?',
+      'Which stall would you never buy from?',
+      'What did you hear at the coffeehouse?',
+      'Who haggled with you the longest today?',
+      'What do you keep hidden under your counter?',
+      'Which rumor is going around the market right now?'
+    ]
+  },
+  space: {
+    title: 'Kepler Deep', level: 'Hard', decoys: 5, caseRounds: 4, minutes: 1, listLabel: 'Callsigns on the crew roster',
+    hook: 'A research station far from home. A saboteur. Callsigns that sound alike.',
+    intro: 'Kepler Deep Station, four hundred days from home. The crew goes by callsigns, and some of them sound alike. Someone aboard has started cutting life support to single bunks, one callsign at a time. Trust the logs, not the faces.',
+    death: 'was found in a sealed bunk with the oxygen cut.', quiet: 'Life support held. Every bunk checked in.',
+    names: ['Nova', 'Nova Two', 'Halo', 'Halos', 'Orbit', 'Orbiter', 'Echo', 'Echo Prime', 'Vega', 'Vela', 'Lyra', 'Lyre',
+      'Comet', 'Comet Tail', 'Rigel', 'Regal', 'Atlas', 'Atlas Nine', 'Sol', 'Solo', 'Ion', 'Iona'],
+    places: ['Hydroponics', 'the Observation Deck', 'Engineering', 'the Mess Hall', 'the Med Bay', 'the Airlock Corridor', 'Comms'],
+    beats: [
+      'The station AI logged a door opening on a deck nobody was assigned to.',
+      'Oxygen readings dipped for ninety seconds on Deck 3. Nobody reported it.',
+      'A crew tablet was wiped clean and left in the airlock corridor.',
+      'The comms array received a transmission addressed to nobody.',
+      'Hydroponics lost an entire tray of seedlings overnight.',
+      'Someone ran the coffee machine at 03:12. The log is missing a name.'
+    ],
+    questions: [
+      'What were you doing when the alarms went off?',
+      'Which crew member do you avoid in the mess hall?',
+      'What’s the first thing you’ll do back on Earth?',
+      'Who had access to your deck last night?',
+      'What did your last log entry say?',
+      'If you had to sabotage one system, which would it be?'
+    ]
+  }
+};
+const MODES = {
+  classic: { name: 'Classic', kills: 1, penalty: false, desc: 'Killers write one name per round. A wrong guess: nothing happens.' },
+  penalty: { name: 'Penalty', kills: 1, penalty: true, desc: 'One name per round. A wrong guess clears an innocent player in public.' },
+  frenzy: { name: 'Frenzy', kills: 2, penalty: false, desc: 'Killers write up to two names per round. Fast and bloody.' }
+};
+const ROLE = { killer: { name: 'Killer' }, detective: { name: 'Detective' }, civilian: { name: 'Civilian' } };
+const STREAK = 3; // top the vote this many rounds in a row to be thrown out
+
+function shuffle(a, rnd = Math.random) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const pick = (a, rnd) => a[Math.floor(rnd() * a.length)];
+
+// settings.scenario may be 'random'; Random also takes that scenario's talk time.
+function newGame(names, settings, rnd = Math.random) {
+  const n = names.length, killers = settings.twoKillers && n >= 7 ? 2 : 1;
+  const scenario = settings.scenario in SCENARIOS ? settings.scenario : pick(Object.keys(SCENARIOS), rnd);
+  const sc = SCENARIOS[scenario];
+  const minutes = settings.scenario in SCENARIOS ? settings.minutes : sc.minutes;
+  const roles = shuffle(['detective', ...Array(killers).fill('killer'), ...Array(n - 1 - killers).fill('civilian')], rnd);
+  const pool = shuffle(sc.names, rnd);
+  const g = {
+    settings: { ...settings, minutes, twoKillers: killers === 2 }, scenario, screen: 'story', round: 1, idx: 0, shown: false,
+    // balance by table size: small games throw out faster, big games slow the killers down
+    streakLen: n <= 5 ? 2 : STREAK, killGap: n >= 8 ? 2 : 1,
+    players: names.map((name, i) => ({ name, role: roles[i], alias: pool[i], alive: true, out: null, cleared: false, lastKill: null })),
+    aliasList: shuffle(pool.slice(0, n + sc.decoys), rnd),
+    beats: shuffle(sc.beats, rnd), questions: shuffle(sc.questions, rnd),
+    order: [], votes: {}, kills: [], case: null, caseLog: [], streak: null, notes: [], usedClues: [], event: null,
+    alibis: {}, report: null, winner: null, talkEnds: 0
+  };
+  g.alibis = assignAlibis(g, rnd);
+  return g;
+}
+
+// Innocents are paired at a place (a trio if odd); killers get no alibi, only the places in use to lie about.
+function assignAlibis(g, rnd = Math.random) {
+  const P = g.players, places = shuffle(SCENARIOS[g.scenario].places, rnd);
+  const inn = shuffle(P.map((_, i) => i).filter(i => P[i].alive && P[i].role !== 'killer'), rnd), groups = [];
+  for (let i = 0; i < inn.length; i += 2) groups.push(inn.slice(i, i + 2));
+  if (groups.length > 1 && groups[groups.length - 1].length === 1) groups[groups.length - 2].push(groups.pop()[0]);
+  const al = {};
+  groups.forEach((grp, gi) => grp.forEach(i => { al[i] = { place: places[gi], others: grp.length - 1 }; }));
+  P.forEach((p, i) => { if (p.alive && p.role === 'killer') al[i] = { place: null, options: places.slice(0, groups.length) }; });
+  return al;
+}
+
+// A true fact about a living killer's name that fits roughly a quarter to two thirds of the list.
+function nameClue(g, rnd = Math.random) {
+  const killers = g.players.filter(p => p.alive && p.role === 'killer');
+  if (!killers.length) return null;
+  const target = pick(killers, rnd).alias, list = g.aliasList;
+  const letters = s => s.toLowerCase().replace(/[^a-z]/g, '');
+  const C = [];
+  for (const ch of 'abcdeghiklmnoprstuvw') C.push([`has the letter ${ch.toUpperCase()} in it`, a => letters(a).includes(ch)]);
+  C.push(['is a single word', a => !/\s/.test(a.trim())], ['is more than one word', a => /\s/.test(a.trim())]);
+  for (const n of [4, 6, 8]) C.push([`is longer than ${n} letters`, a => letters(a).length > n], [`is ${n} letters or shorter`, a => letters(a).length <= n]);
+  for (const [lo, hi] of [['A', 'F'], ['G', 'M'], ['N', 'S'], ['T', 'Z']]) {
+    C.push([`starts with a letter from ${lo} to ${hi}`, a => { const c = letters(a)[0].toUpperCase(); return c >= lo && c <= hi; }]);
+  }
+  const share = f => list.filter(f).length / list.length;
+  const fresh = C.filter(([t, f]) => f(target) && !g.usedClues.includes(t));
+  const good = fresh.filter(([, f]) => { const s = share(f); return s >= .25 && s <= .7; });
+  const pool = good.length ? good : fresh.filter(([, f]) => share(f) < 1);
+  if (!pool.length) return null;
+  const [text] = pick(pool, rnd);
+  g.usedClues.push(text);
+  return (killers.length > 1 ? 'One killer’s name ' : 'The killer’s name ') + text + '.';
+}
+
+// Opens a talk phase: a story event, a fresh clue and a question for the table.
+function openRound(g, rnd = Math.random) {
+  const clue = nameClue(g, rnd), i = (g.round - 1) % g.beats.length;
+  g.event = { beat: g.beats[i], question: g.questions[(g.round - 1) % g.questions.length], clue };
+  if (clue) g.notes.push({ round: g.round, text: clue });
+}
+
+// After writing a name (right or wrong), a killer waits killGap rounds before writing again.
+function canKill(g, i) {
+  const last = g.players[i].lastKill;
+  return last == null || g.round - last >= (g.killGap || 1);
+}
+
+// Most votes wins the round; a tie ejects nobody.
+function tally(votes) {
+  const c = {};
+  for (const t of Object.values(votes)) c[t] = (c[t] || 0) + 1;
+  let best = 0, top = [];
+  for (const [t, k] of Object.entries(c)) { if (k > best) { best = k; top = [+t]; } else if (k === best) top.push(+t); }
+  return top.length === 1 ? top[0] : null;
+}
+
+// Votes and kills resolve together: a killer thrown out this round still gets their kill.
+function resolveRound(g, rnd = Math.random) {
+  const P = g.players, report = { round: g.round, top: null, count: 0, ejected: null, dead: [], clues: [] };
+  const deaths = new Set();
+  let wrong = 0;
+  for (const k of g.kills) {
+    P[k.by].lastKill = g.round;
+    if (P[k.target].alias === k.alias) deaths.add(k.target); else wrong++;
+  }
+
+  const top = tally(g.votes);
+  if (top === null) g.streak = null;
+  else if (g.streak && g.streak.target === top) g.streak.count++;
+  else g.streak = { target: top, count: 1 };
+  report.top = top; report.count = g.streak ? g.streak.count : 0;
+  if (g.streak && g.streak.count >= (g.streakLen || STREAK)) { P[top].alive = false; P[top].out = 'vote'; report.ejected = top; g.streak = null; }
+
+  for (const d of deaths) if (P[d].alive) { P[d].alive = false; P[d].out = 'killed'; report.dead.push(d); }
+  if (g.streak && !P[g.streak.target].alive) g.streak = null;
+
+  if (MODES[g.settings.mode].penalty) {
+    for (let i = 0; i < wrong; i++) {
+      const pool = P.map((_, j) => j).filter(j => P[j].alive && P[j].role !== 'killer' && !P[j].cleared);
+      if (!pool.length) break;
+      const c = pick(pool, rnd);
+      P[c].cleared = true; report.clues.push(c);
+      g.notes.push({ round: g.round, text: `${P[c].name} is not a killer.` });
+    }
+  }
+  if (!P.some(p => p.alive && p.role === 'detective')) g.case = null;
+  const k = P.filter(p => p.alive && p.role === 'killer').length, o = P.filter(p => p.alive && p.role !== 'killer').length;
+  g.winner = k === 0 ? 'town' : k >= o ? 'killers' : null;
+  g.report = report; g.votes = {}; g.kills = []; g.round++;
+  return g;
+}
+</script>
+
+<script>
+const $app = document.getElementById('app');
+const KEY = 'alias-v2';
+let S = { setup: { names: ['', '', '', ''], minutes: 2, mode: 'classic', twoKillers: false, scenario: 'noir' }, game: null, muted: false };
+let D = null; // the current player's private choices; never saved
+const ui = { err: '', quitArm: false };
+let tick = null, lastSec = null;
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && s.setup) { S = s; if (S.game) S.game.shown = false; } // never reopen on a private screen
+  } catch (e) {}
+}
+function keepAwake() { try { navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {} }
+
+/* ---------- art ---------- */
+const svg = (vb, cls, body) => `<svg class="${cls}" viewBox="${vb}" aria-hidden="true">${body}</svg>`;
+const EMBLEM = {
+  noir: '<path d="M44 112V38M44 38h22M66 38v8M56 46h20l-5 11H61z"/><path d="M60 58L48 110M72 58l12 52" opacity=".4"/><path d="M18 14l-6 15M30 34l-6 15M98 12l-6 15M104 50l-6 15M14 70l-6 15M100 86l-6 15"/><path d="M30 112h40"/>',
+  school: '<path d="M60 10l40 13v31c0 29-18 45-40 56-22-11-40-27-40-56V23z"/><path d="M38 50c9-5 16-5 22 0 6-5 13-5 22 0v28c-9-5-16-5-22 0-6-5-13-5-22 0z"/><path d="M60 50v28M44 32h32"/>',
+  cairo: '<path d="M60 6v14M48 20h24M44 28h32l-5 9H49z"/><path d="M47 37c-7 11-7 33 0 44h26c7-11 7-33 0-44"/><path d="M49 81h22l-5 11H54zM60 92v12"/><path d="M60 46l7 10-7 10-7-10z"/><path d="M38 59h-6M88 59h-6"/>',
+  space: '<circle cx="60" cy="62" r="25"/><ellipse cx="60" cy="62" rx="52" ry="14" transform="rotate(-18 60 62)"/><circle cx="98" cy="22" r="5"/><path d="M98 12v-4M98 36v-4M88 22h-4M112 22h-4"/><circle cx="20" cy="100" r="2"/>'
+};
+const emblem = (sc, cls = 'emblem') => svg('0 0 120 120', cls, EMBLEM[sc] || EMBLEM.noir);
+const IC = {
+  killer: '<path d="M4 20l3.5-1L19 7.5 16.5 5 5 16.5z"/><path d="M14.5 7l2.5 2.5M4 20l3-3"/>',
+  detective: '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L21 21"/>',
+  civilian: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  vote: '<rect x="4" y="11" width="16" height="9" rx="1.5"/><path d="M8 11V4h8v7M10 7h4"/>',
+  dead: '<path d="M12 3a8 8 0 0 0-8 8c0 3 1.6 4.8 3 6v3h10v-3c1.4-1.2 3-3 3-6a8 8 0 0 0-8-8z"/><circle cx="9" cy="11" r="1.6"/><circle cx="15" cy="11" r="1.6"/><path d="M10 20v-2M14 20v-2"/>',
+  moon: '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  clue: '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L21 21M8 10h4M10 8v4"/>',
+  pin: '<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
+  ask: '<path d="M4 5h16v11H9l-5 4z"/><path d="M10 9a2 2 0 1 1 3 1.7c-.6.4-1 .8-1 1.3M12 14h.01"/>',
+  eyeoff: '<path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6 0 10 6 10 6a17 17 0 0 1-3.2 3.6M6.4 7.6C3.6 9.4 2 12 2 12s4 6 10 6c1.6 0 3-.4 4.3-1"/>',
+  sound: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>',
+  mute: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6z"/>',
+  scale: '<path d="M12 4v16M5 20h14M5 8h14M5 8l-3 6h6zM19 8l-3 6h6z"/>',
+  dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/>'
+};
+const ico = k => svg('0 0 24 24', 'ico', IC[k]);
+const pips = level => {
+  const n = { Easy: 1, Medium: 2, Hard: 3 }[level];
+  return `<span class="pips ${level.toLowerCase()}">${[1, 2, 3].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}<span>${level}</span></span>`;
+};
+const streakLen = g => g.streakLen || STREAK;
+const strikes = (n, of) => `<span class="strikes" aria-label="${n} of ${of}">${Array.from({ length: of }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+
+/* ---------- sound (synthesized, no files) ---------- */
+const sfx = {
+  ctx: null,
+  init() {
+    try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {}
+  },
+  tone(freq, dur, type, vol, when = 0) {
+    const c = this.ctx, t = c.currentTime + when, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .02);
+  },
+  play(kind) {
+    if (S.muted || !this.ctx) return;
+    try {
+      if (kind === 'tick') this.tone(1500, .035, 'square', .04);
+      else if (kind === 'stamp') { this.tone(80, .3, 'sine', .55); this.tone(160, .07, 'triangle', .25); }
+      else if (kind === 'page') this.tone(620, .05, 'triangle', .05);
+      else if (kind === 'alarm') [0, .22, .44].forEach(w => this.tone(880, .16, 'square', .07, w));
+      else if (kind === 'sting') { this.tone(110, 1.8, 'sine', .3); this.tone(220, 1.4, 'sawtooth', .05); this.tone(311, 1.4, 'sawtooth', .04, .06); }
+    } catch (e) {}
+  }
+};
+
+/* ---------- flow ---------- */
+function draft(g) {
+  return { vote: null, kills: Array.from({ length: MODES[g.settings.mode].kills }, () => ({ t: null, a: null })), caseT: null, solved: null };
+}
+function startTalk(g) { openRound(g); g.screen = 'talk'; g.talkEnds = Date.now() + g.settings.minutes * 60000; keepAwake(); }
+function startTurns(g) {
+  g.screen = 'turns'; g.idx = 0; g.shown = false; g.votes = {}; g.kills = [];
+  g.order = g.players.map((_, i) => i).filter(i => g.players[i].alive);
+  g.alibis = assignAlibis(g); // tonight's whereabouts, shown on each private turn
+}
+function openTurn(g) {
+  D = draft(g);
+  const p = g.players[g.order[g.idx]];
+  if (p.role === 'detective' && g.case && g.round - g.case.round >= SCENARIOS[g.scenario].caseRounds) {
+    g.caseLog.push({ target: g.case.target, role: g.players[g.case.target].role });
+    g.case = null; D.solved = g.caseLog.length - 1;
+  }
+}
+function commitTurn(g) {
+  const me = g.order[g.idx];
+  g.votes[me] = D.vote;
+  if (canKill(g, me)) for (const k of D.kills) if (k.t !== null && k.a !== null) g.kills.push({ by: me, target: k.t, alias: k.a });
+  if (D.caseT !== null) g.case = { target: D.caseT, round: g.round };
+  D = null; g.shown = false;
+  if (++g.idx >= g.order.length) { resolveRound(g); g.screen = 'morning'; }
+}
+function checkNames(names) {
+  if (names.some(n => !n)) return 'Every player needs a name.';
+  if (new Set(names.map(n => n.toLowerCase())).size !== names.length) return 'Two players share a name. Add an initial to tell them apart.';
+  return '';
+}
+
+const ACT = {
+  add() { if (S.setup.names.length < 12) S.setup.names.push(''); },
+  rm(b) { if (S.setup.names.length > 4) S.setup.names.splice(+b.dataset.i, 1); },
+  min(b) { S.setup.minutes = Math.min(5, Math.max(1, S.setup.minutes + +b.dataset.d)); },
+  start() {
+    const names = S.setup.names.map(n => n.trim());
+    ui.err = checkNames(names);
+    if (!ui.err) S.game = newGame(names, { minutes: S.setup.minutes, mode: S.setup.mode, twoKillers: S.setup.twoKillers, scenario: S.setup.scenario });
+  },
+  files(b, g) { g.screen = 'reveal'; },
+  show(b, g) { g.shown = true; if (g.screen === 'turns') openTurn(g); },
+  hide(b, g) { g.shown = false; if (++g.idx >= g.players.length) startTalk(g); },
+  vote(b, g) { startTurns(g); },
+  pick(b) {
+    const k = b.dataset.k, v = b.dataset.v;
+    if (k === 'vote') D.vote = +v;
+    else if (k === 'case') D.caseT = D.caseT === +v ? null : +v;
+    else {
+      const slot = D.kills[+k.slice(2)], f = k[1], val = f === 't' ? +v : v;
+      slot[f] = slot[f] === val ? null : val;
+    }
+  },
+  done(b, g) { commitTurn(g); },
+  next(b, g) { if (g.winner) g.screen = 'end'; else startTalk(g); },
+  again(b, g) { S.game = newGame(g.players.map(p => p.name), { ...g.settings, minutes: S.setup.minutes, scenario: S.setup.scenario }); },
+  setup() { S.game = null; },
+  mute() { S.muted = !S.muted; },
+  quit() { if (ui.quitArm) { S.game = null; D = null; } ui.quitArm = !ui.quitArm; }
+};
+const SOUND_FOR = { show: 'stamp', files: 'page', hide: 'page', done: 'page', next: 'page', start: 'page' };
+
+$app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  sfx.init();
+  const act = b.dataset.act, y = window.scrollY, before = S.game && S.game.screen;
+  if (act !== 'quit') ui.quitArm = false;
+  ACT[act](b, S.game);
+  render();
+  const after = S.game && S.game.screen;
+  if (after === 'morning' && before !== 'morning') sfx.play('sting');
+  else if (after === 'end' && before !== 'end') sfx.play('stamp');
+  else if (SOUND_FOR[act] && !(act === 'show' && after !== 'reveal')) sfx.play(SOUND_FOR[act]);
+  window.scrollTo(0, act === 'pick' || act === 'quit' || act === 'mute' ? y : 0); // keep place while choosing
+  if (act === 'add') { const ins = $app.querySelectorAll('[data-name]'); ins[ins.length - 1].focus(); }
+});
+$app.addEventListener('input', e => {
+  const i = e.target.dataset.name;
+  if (i !== undefined) { S.setup.names[+i] = e.target.value; save(); }
+});
+$app.addEventListener('change', e => {
+  const t = e.target;
+  if (t.name === 'mode') { S.setup.mode = t.value; render(); }
+  else if (t.name === 'scenario') {
+    S.setup.scenario = t.value;
+    if (SCENARIOS[t.value]) S.setup.minutes = SCENARIOS[t.value].minutes; // harder cases talk less
+    render();
+  }
+  else if (t.id === 'two') { S.setup.twoKillers = t.checked; render(); }
+});
+
+/* ---------- views ---------- */
+function chips(k, items, sel) {
+  return `<div class="chips">${items.map(it => {
+    const on = sel !== null && String(sel) === String(it.v);
+    return `<button class="chip${on ? ' on' : ''}" data-act="pick" data-k="${k}" data-v="${esc(it.v)}" aria-pressed="${on}">${esc(it.label)}</button>`;
+  }).join('')}</div>`;
+}
+function cover(g, name, eyebrow, step, total, btn) {
+  return `<section class="cover">${ico('eyeoff')}<p class="label">${eyebrow}</p>
+    <div class="peek">${Array.from({ length: total }, (_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join('')}</div>
+    <p class="muted">Pass the phone to</p><h2 class="who">${esc(name)}</h2><p class="muted small">Everyone else, look away.</p>
+    <button class="primary" data-act="show">I'm ${esc(name)}. ${btn}</button></section>`;
+}
+function alibiText(a) {
+  if (!a) return '';
+  if (a.place === null) return `You were out, and nobody saw you. People were at <b>${a.options.map(esc).join('</b>, <b>')}</b>. Claim one of them, or make up your own story.`;
+  return a.others
+    ? `You were at <b>${esc(a.place)}</b> with ${a.others} other ${a.others > 1 ? 'people' : 'person'}. You don’t know who.`
+    : `You were at <b>${esc(a.place)}</b>, alone.`;
+}
+
+function setupView() {
+  const s = S.setup, many = s.names.length >= 7;
+  const modeIcon = { classic: 'killer', penalty: 'scale', frenzy: 'bolt' };
+  return `<section class="hero">${emblem(SCENARIOS[s.scenario] ? s.scenario : 'noir')}<h1 class="mark">ALIAS</h1>
+      <p class="tag">Everyone has a secret name. Somebody is writing them down.</p></section>
+    <ol class="how"><li><b>Get your file</b>a secret role and a secret name</li><li><b>Talk</b>clues, alibis and lies</li><li><b>Secret turn</b>vote, investigate, or kill</li></ol>
+    <section class="block"><h2 class="label">Choose a case</h2><div class="cases">${Object.entries(SCENARIOS).map(([id, c]) =>
+      `<label class="case"><input type="radio" name="scenario" id="sc-${id}" value="${id}" ${s.scenario === id ? 'checked' : ''}>
+        ${emblem(id)}<b>${c.title}</b>${pips(c.level)}<small>${c.hook}</small></label>`).join('')}
+      <label class="case random"><input type="radio" name="scenario" id="sc-random" value="random" ${s.scenario === 'random' ? 'checked' : ''}>
+        ${svg('0 0 24 24', 'ico', IC.dice)}<span><b>Random case</b><br><small>Find out where you are when the briefing starts.</small></span></label></div></section>
+    <section class="block"><h2 class="label">Players <span>(4–12)</span></h2>
+      <ol class="names">${s.names.map((n, i) => `<li><input id="name-${i}" data-name="${i}" value="${esc(n)}" placeholder="Player ${i + 1}" maxlength="16" autocomplete="off" aria-label="Player ${i + 1} name">
+        <button class="x" data-act="rm" data-i="${i}" aria-label="Remove player ${i + 1}" ${s.names.length <= 4 ? 'disabled' : ''}>×</button></li>`).join('')}</ol>
+      ${s.names.length < 12 ? '<button class="ghost" data-act="add">+ Add player</button>' : ''}
+      <p class="muted small">${s.names.length <= 5 ? 'Small game: players are thrown out after topping the vote 2 rounds in a row.'
+        : s.names.length >= 8 ? 'Big game: killers can only write a name every other round.'
+        : `Players are thrown out after topping the vote ${STREAK} rounds in a row.`}</p></section>
+    <section class="block"><h2 class="label">Mode</h2><div class="modes">${Object.entries(MODES).map(([id, m]) =>
+      `<label class="mode"><input type="radio" name="mode" id="mode-${id}" value="${id}" ${s.mode === id ? 'checked' : ''}>${ico(modeIcon[id])}<span><b>${m.name}</b><small>${m.desc}</small></span></label>`).join('')}</div></section>
+    <section class="block"><h2 class="label">Talk time per round</h2>
+      ${s.scenario === 'random' ? '<p class="muted small">Set by whichever case comes up.</p>'
+        : `<div class="stepper"><button data-act="min" data-d="-1" aria-label="Less time">−</button><output>${s.minutes} min</output><button data-act="min" data-d="1" aria-label="More time">+</button></div>`}</section>
+    <section class="block"><label class="toggle"><input type="checkbox" id="two" ${s.twoKillers && many ? 'checked' : ''} ${many ? '' : 'disabled'}>
+      <span><b>Second killer</b><small>${many ? 'Two killers who don’t know each other but win together.' : 'Needs 7 or more players.'}</small></span></label></section>
+    <div class="foot"><p class="err" role="alert">${esc(ui.err)}</p><button class="primary" data-act="start">Open the case</button></div>`;
+}
+
+function storyView(g) {
+  const sc = SCENARIOS[g.scenario];
+  return `${emblem(g.scenario, 'emblem brief-emblem')}
+    <h1 class="brief-title">${sc.title}</h1><div class="brief-meta">${pips(sc.level)}</div>
+    <p class="label">Briefing · read this aloud</p>
+    <p class="intro">${sc.intro}</p>
+    <ul class="facts">
+      <li><b>${g.players.length} + ${sc.decoys}</b><span>real names + decoys</span></li>
+      <li><b>${sc.caseRounds} rounds</b><span>for a detective result</span></li>
+      <li><b>${g.settings.minutes} min</b><span>of talk per round</span></li>
+      <li><b>${streakLen(g)} in a row</b><span>top votes to be thrown out</span></li>
+    </ul>
+    <p class="muted small">${MODES[g.settings.mode].name} mode${g.settings.twoKillers ? ' · two killers are hiding among you' : ''}${g.killGap > 1 ? ' · killers write a name every other round' : ''}.</p>
+    <div class="foot"><button class="primary" data-act="files">Hand out the case files</button></div>`;
+}
+
+function revealView(g) {
+  const p = g.players[g.idx], CR = SCENARIOS[g.scenario].caseRounds;
+  if (!g.shown) return cover(g, p.name, `Case file ${g.idx + 1} of ${g.players.length}`, g.idx, g.players.length, 'Show my file');
+  const desc = {
+    killer: 'On your secret turn, write a character name next to a player. If it’s theirs, they die. Stay hidden.'
+      + (g.killGap > 1 ? ' After you write a name, your pen rests for one round.' : '')
+      + (g.settings.twoKillers ? ' There is a second killer. You don’t know who. You win together, so try not to kill each other.' : ''),
+    detective: `Open a case on one player. Their true role reaches you ${CR} rounds later. One case at a time.`,
+    civilian: 'Listen, watch, and vote. Find the killer before your name ends up in their notes.'
+  }[p.role];
+  return `<article class="file">${emblem(g.scenario, 'emblem wm')}<div class="tab">Confidential · ${esc(p.name)}</div>
+      <p class="label">Your secret name</p><h2 class="alias">${esc(p.alias)}</h2>
+      <p class="label">Your role</p><p class="stamp ${p.role}">${ico(p.role)}${ROLE[p.role].name}</p>
+      <p>${desc}</p>
+      <p class="alibi"><span class="label">Last night</span><br>${alibiText(g.alibis[g.idx])}</p>
+      <p class="warn">${ico('eyeoff')} Never say your secret name out loud.</p></article>
+    <div class="foot"><button class="primary" data-act="hide">Hide and pass</button></div>`;
+}
+
+function rosterView(g) {
+  return `<section class="block"><h2 class="label">Suspects</h2><ul class="roster">${g.players.map((p, i) => {
+    let st = '';
+    if (p.out === 'vote') st = `Thrown out · ${ROLE[p.role].name}`;
+    else if (p.out === 'killed') st = 'Dead';
+    else {
+      if (p.cleared) st += '<span class="clr">Not a killer</span>';
+      if (g.streak && g.streak.target === i) st += strikes(g.streak.count, streakLen(g));
+    }
+    return `<li class="${p.alive ? '' : 'out'}"><span>${esc(p.name)}</span><span class="st">${st}</span></li>`;
+  }).join('')}</ul></section>`;
+}
+
+function talkView(g) {
+  const sc = SCENARIOS[g.scenario], ev = g.event || {};
+  const pressure = g.streak && g.players[g.streak.target].alive
+    ? `<div class="pressure">${ico('vote')}<p><b>${esc(g.players[g.streak.target].name)}</b> has topped the vote ${g.streak.count} time${g.streak.count > 1 ? 's' : ''} in a row. ${streakLen(g) - g.streak.count} more and they’re out.</p></div>` : '';
+  const notes = g.notes.filter(n => n.text !== ev.clue);
+  return `<div class="ring" id="ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/>
+      <circle id="ring" class="ring-fg" cx="60" cy="60" r="54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0" transform="rotate(-90 60 60)"/></svg>
+      <div id="clock" class="clock" role="timer">–:––</div><span class="sub">Round ${g.round}</span></div>
+    <section class="event"><div class="event-head">${emblem(g.scenario)}<p class="label">${sc.title} · tonight’s report</p></div>
+      <p class="beat">${ev.beat || ''}</p>
+      ${ev.clue ? `<div class="evidence">${ico('clue')}<div><p class="label">New evidence</p><p class="clue-text">${esc(ev.clue)}</p></div></div>` : ''}</section>
+    <section class="question"><p class="label">Everyone answers out loud</p><p class="q">${ev.question || ''}</p>
+      <p class="muted small">Then: where were you last night, and who can back you up?</p></section>
+    ${pressure}
+    <section class="block"><h2 class="label">${sc.listLabel}</h2>
+      <p class="muted small">${g.players.length} belong to players. ${g.aliasList.length - g.players.length} are decoys.</p>
+      <ul class="aliases">${g.aliasList.map(a => `<li>${esc(a)}</li>`).join('')}</ul></section>
+    ${rosterView(g)}
+    ${notes.length ? `<section class="block"><h2 class="label">Case notes</h2><ul class="notes-list">${notes.slice().reverse().map(n =>
+      `<li><span>Round ${n.round}</span>${esc(n.text)}</li>`).join('')}</ul></section>` : ''}
+    <div class="foot"><button class="ghost" data-act="vote">End talk now</button></div>`;
+}
+
+function turnView(g) {
+  const me = g.order[g.idx], p = g.players[me], CR = SCENARIOS[g.scenario].caseRounds;
+  if (!g.shown) return cover(g, p.name, `Secret turn ${g.idx + 1} of ${g.order.length}`, g.idx, g.order.length, 'Show my turn');
+  if (!D) D = draft(g);
+  const others = g.order.filter(i => i !== me).map(i => ({ v: i, label: g.players[i].name }));
+  let extra = '';
+  if (p.role === 'killer' && !canKill(g, me)) {
+    extra = `<section class="panel notes"><h3>${ico('killer')}Your notes</h3>
+      <p>Your pen is resting this round. You can write a name again next round.</p>
+      <p class="muted small">In big games killers write one name every other round. Vote like everyone else.</p>
+      ${g.notes.length ? `<p class="sub">Clues so far</p>${g.notes.map(n => `<p class="small">${esc(n.text)}</p>`).join('')}` : ''}</section>`;
+  } else if (p.role === 'killer') {
+    extra = `<section class="panel notes"><h3>${ico('killer')}Your notes</h3>${D.kills.map((s, k) => `
+        <p class="sub">${D.kills.length > 1 ? `Name ${k + 1}: ` : ''}Player</p>${chips('kt' + k, others, s.t)}
+        <p class="sub">is secretly</p>${chips('ka' + k, g.aliasList.map(a => ({ v: a, label: a })), s.a)}`).join('<hr>')}
+      <p class="muted small">Leave it blank to kill nobody this round. Tap again to unselect.</p>
+      ${g.notes.length ? `<p class="sub">Clues so far</p>${g.notes.map(n => `<p class="small">${esc(n.text)}</p>`).join('')}` : ''}</section>`;
+  } else if (p.role === 'detective') {
+    const solved = D.solved !== null ? g.caseLog[D.solved] : null;
+    let body = solved ? `<p class="result">Case closed: <b>${esc(g.players[solved.target].name)}</b> is a <b>${ROLE[solved.role].name}</b>.</p>` : '';
+    if (g.case) {
+      const left = CR - (g.round - g.case.round);
+      body += `<p>Open case on <b>${esc(g.players[g.case.target].name)}</b>. Result in ${left} round${left > 1 ? 's' : ''}.</p>`;
+    } else {
+      body += `<p class="sub">Open a new case (optional)</p>${chips('case', others, D.caseT)}<p class="muted small">Their role reaches you in ${CR} rounds.</p>`;
+    }
+    const past = g.caseLog.filter((_, i) => i !== D.solved);
+    if (past.length) body += `<p class="sub">Past results</p>${past.map(c => `<p class="small">${esc(g.players[c.target].name)}: ${ROLE[c.role].name}</p>`).join('')}`;
+    extra = `<section class="panel"><h3>${ico('detective')}Case board</h3>${body}</section>`;
+  }
+  const ok = D.vote !== null && D.kills.every(s => (s.t === null) === (s.a === null));
+  return `<div class="me">${ico(p.role)}<div><b>${esc(p.alias)}</b><small>${esc(p.name)} · ${ROLE[p.role].name}</small></div></div>
+    <section class="panel"><h3>${ico('pin')}Tonight</h3><p>${alibiText(g.alibis[me])}</p><p class="muted small">Remember it. Tomorrow everyone will ask.</p></section>
+    <section class="panel"><h3>${ico('vote')}Vote</h3><p class="muted small">Who do you think is a killer?</p>${chips('vote', others, D.vote)}</section>
+    ${extra}
+    <div class="foot"><button class="primary" data-act="done" ${ok ? '' : 'disabled'}>Done. Hide and pass</button></div>`;
+}
+
+function morningView(g) {
+  const r = g.report, P = g.players, sc = SCENARIOS[g.scenario];
+  const item = (cls, icon, html) => `<div class="ev ${cls}">${ico(icon)}<p>${html}</p></div>`;
+  let vote;
+  const SL = streakLen(g);
+  if (r.ejected !== null) vote = item('out', 'vote', `<big>${esc(P[r.ejected].name)} is thrown out.</big>Top of the vote ${SL} rounds in a row. They were a <b>${ROLE[P[r.ejected].role].name}</b>.`);
+  else if (r.top !== null) vote = item('vote', 'vote', `<b>${esc(P[r.top].name)}</b> got the most votes. ${strikes(r.count, SL)} ${r.count} of ${SL}.`);
+  else vote = item('vote', 'vote', 'The vote was split. Nobody’s streak continues.');
+  const night = r.dead.length
+    ? r.dead.map(i => item('dead', 'dead', `<big>${esc(P[i].name)}</big>${sc.death}`)).join('')
+    : item('quiet', 'moon', `<big>Nothing happened.</big>${sc.quiet}`);
+  const clues = r.clues.map(i => item('clue', 'clue', `A name was written wrong. <b>${esc(P[i].name)}</b> is not a killer.`)).join('');
+  return `<section class="dawn"><p class="label">Round ${r.round} · morning</p><h1>The morning report</h1></section>
+    <div class="report">${night}${vote}${clues}</div>
+    <div class="foot"><button class="primary" data-act="next">${g.winner ? 'See the verdict' : `Start round ${g.round}`}</button></div>`;
+}
+
+function endView(g) {
+  const two = g.settings.twoKillers, town = g.winner === 'town';
+  const title = town ? 'Case closed.' : two ? 'The killers got away.' : 'The killer got away.';
+  const sub = town ? 'Every killer is off the streets. The town wins.' : 'They outnumber everyone left standing.';
+  return `<p class="verdict-stamp ${g.winner}">${town ? 'Solved' : 'Unsolved'}</p><h1 class="verdict">${title}</h1><p class="muted">${sub}</p>
+    <div class="files-wrap"><table class="files"><thead><tr><th>Player</th><th>Secret name</th><th>Role</th><th>Fate</th></tr></thead><tbody>
+      ${g.players.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.alias)}</td><td class="${p.role === 'killer' ? 'k' : ''}">${ROLE[p.role].name}</td>
+        <td>${p.alive ? 'Survived' : p.out === 'vote' ? 'Thrown out' : 'Killed'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="muted small">Decoys: ${g.aliasList.filter(a => !g.players.some(p => p.alias === a)).map(esc).join(', ')}</p>
+    <div class="foot"><button class="primary" data-act="again">Play again</button><button class="ghost" data-act="setup">Change players or case</button></div>`;
+}
+
+function headerView(g) {
+  const where = !g ? '' : ({ story: 'Briefing', reveal: 'Case files', end: 'Verdict', morning: `Round ${g.round - 1}` }[g.screen] || `Round ${g.round}`);
+  return `<header class="top"><span class="brand">ALIAS</span><span class="where">${where}</span><span class="tools">
+    <button class="tbtn" data-act="mute" aria-label="${S.muted ? 'Turn sound on' : 'Mute sound'}">${ico(S.muted ? 'mute' : 'sound')}</button>
+    ${g ? `<button class="tbtn" data-act="quit">${ui.quitArm ? 'Tap again to quit' : 'Quit'}</button>` : ''}</span></header>`;
+}
+
+function startClock(g) {
+  const el = document.getElementById('clock'), ring = document.getElementById('ring'), wrap = document.getElementById('ring-wrap');
+  const total = g.settings.minutes * 60000;
+  const step = () => {
+    const ms = g.talkEnds - Date.now();
+    if (ms <= 0) {
+      sfx.play('alarm');
+      try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {}
+      startTurns(g); render(); return;
+    }
+    const s = Math.ceil(ms / 1000);
+    el.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    ring.style.strokeDashoffset = String(100 * (1 - ms / total));
+    wrap.classList.toggle('low', s <= 15);
+    if (s <= 10 && s !== lastSec) sfx.play('tick');
+    lastSec = s;
+  };
+  tick = setInterval(step, 250);
+  step();
+}
+
+function render() {
+  clearInterval(tick);
+  save();
+  const g = S.game;
+  document.body.dataset.sc = g ? g.scenario : (SCENARIOS[S.setup.scenario] ? S.setup.scenario : 'noir');
+  const view = !g ? setupView() : { story: storyView, reveal: revealView, talk: talkView, turns: turnView, morning: morningView, end: endView }[g.screen](g);
+  $app.innerHTML = headerView(g) + `<main class="screen">${view}</main>`;
+  if (g && g.screen === 'talk') startClock(g);
+}
+
+window.claude?.hot?.snapshot(() => S);
+const boot = d => { if (d && d.setup) S = d; else load(); render(); };
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+android/
+keystore/
+assets/*.png
+*.apk
+.DS_Store

@@ -1,0 +1,77 @@
+name: Release APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Version from tag
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.$GITHUB_RUN_NUMBER"; fi
+          IFS=. read -r MA MI PA <<< "$V"
+          echo "APP_VERSION=$V" >> "$GITHUB_ENV"
+          echo "APP_VERSION_CODE=$((MA * 10000 + MI * 100 + PA))" >> "$GITHUB_ENV"
+
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: node scripts/build-web.mjs
+      - run: npx cap add android
+      - run: node scripts/icons.mjs
+      - run: npx capacitor-assets generate --android --iconBackgroundColor '#14161c' --iconBackgroundColorDark '#14161c' --splashBackgroundColor '#14161c' --splashBackgroundColorDark '#14161c'
+      - run: npx cap sync android
+
+      - name: Signing key
+        env:
+          KEYSTORE: ${{ secrets.ALIAS_KEYSTORE }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "$KEYSTORE" | base64 -d > android/app/alias.p12
+            echo "ALIAS_SIGN=release" >> "$GITHUB_ENV"
+          else
+            echo "::warning::ALIAS_KEYSTORE secret not set; signing with a temporary key"
+            echo "ALIAS_SIGN=temp" >> "$GITHUB_ENV"
+          fi
+
+      - run: node scripts/patch-android.mjs
+
+      - name: Build APK
+        working-directory: android
+        env:
+          ALIAS_KEY_PASS: ${{ secrets.ALIAS_KEY_PASS }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APK
+        run: cp "$(ls android/app/build/outputs/apk/release/*.apk | head -1)" ALIAS.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ALIAS-apk
+          path: ALIAS.apk
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" ALIAS.apk --title "ALIAS $APP_VERSION" --notes-file RELEASE_NOTES.md
