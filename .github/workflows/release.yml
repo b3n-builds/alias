@@ -23,8 +23,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: android-actions/setup-android@v3
-
+      # ubuntu runners ship the Android SDK (ANDROID_HOME); Gradle fetches any missing platform itself
       - name: Version from tag
         run: |
           if [ "$GITHUB_REF_TYPE" = tag ]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.$GITHUB_RUN_NUMBER"; fi
