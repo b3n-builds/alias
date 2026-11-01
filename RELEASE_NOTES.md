@@ -1,4 +1,9 @@
-# ALIAS 1.0.1
+# ALIAS 1.0.2
+
+- Signed with the permanent ALIAS key. From this version on, updates install over the old app.
+- **Uninstall any older ALIAS once before installing this one** (older builds used throwaway keys).
+
+## 1.0.1
 
 - Fix: long labels in the top bar no longer push screens wider than the phone.
 
