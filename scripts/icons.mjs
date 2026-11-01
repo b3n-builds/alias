@@ -12,7 +12,7 @@ const nib = `
   <path d="M512 214 L512 520" stroke="${BG}" stroke-width="14" stroke-linecap="round"/>
   <circle cx="512" cy="560" r="34" fill="${BG}"/>
   <path d="M400 742 H624 V790 Q624 806 608 806 H416 Q400 806 400 790 Z" fill="#8c5e1c"/>
-  <path d="M470 196 Q512 150 554 196" fill="none" stroke="#d0453a" stroke-width="16" stroke-linecap="round"/>`;
+  <path d="M300 858 C 380 822, 452 886, 532 846 S 680 834, 724 852" fill="none" stroke="#d0453a" stroke-width="20" stroke-linecap="round"/>`;
 const svg = (body, defs, size = 1024) =>
   Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 1024 1024"><defs>${defs}</defs>${body}</svg>`);
 
@@ -20,7 +20,7 @@ fs.mkdirSync('assets', { recursive: true });
 const full = svg(`<rect width="1024" height="1024" fill="url(#bg)"/>${nib}`, bg + nibDefs);
 await sharp(full).png().toFile('assets/icon-only.png');
 // adaptive icon: the nib scaled into the 66% safe zone over the plain background
-await sharp(svg(`<g transform="translate(512 512) scale(.78) translate(-512 -500)">${nib}</g>`, nibDefs)).png().toFile('assets/icon-foreground.png');
+await sharp(svg(`<g transform="translate(512 512) scale(.74) translate(-512 -530)">${nib}</g>`, nibDefs)).png().toFile('assets/icon-foreground.png');
 await sharp(svg(`<rect width="1024" height="1024" fill="url(#bg)"/>`, bg)).png().toFile('assets/icon-background.png');
 
 const splash = async file => {

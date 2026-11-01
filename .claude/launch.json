@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "alias-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "const h=require('http'),f=require('fs'),p=require('path'),t={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};h.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const fp=p.join('www',p.normalize(u));f.readFile(fp,(e,d)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{'Content-Type':(t[p.extname(fp)]||'application/octet-stream')+'; charset=utf-8'});r.end(d)})}).listen(5173)"],
+      "port": 5173
+    }
+  ]
+}

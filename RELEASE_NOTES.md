@@ -1,4 +1,10 @@
-# ALIAS 0.9.0
+# ALIAS 1.0
 
-First Android build of ALIAS: 4 scenarios, 3 modes, clues, alibis and vote streaks.
-Install ALIAS.apk on Android (allow "install unknown apps" for your browser).
+- 21 cases (17 new), each with its own look, story, names, alibi places, events and questions. Seven are set in Egypt and the Arab world.
+- Full Arabic version: switch on the home screen.
+- Redesigned as a real mobile game: home screen, 3-step setup, case picker, hold-to-open private screens, tabs during talk, haptics.
+- Rebalanced with a bot simulator: killers now have alibis and can be spotted by witnesses, the killer count scales with the table, and difficulty levels mean something. See BALANCE.md.
+- The app checks GitHub for new versions and offers the download.
+
+Install: download ALIAS.apk on your Android phone and open it (allow "install unknown apps" for your browser).
+If you installed 0.9.0, uninstall it first.

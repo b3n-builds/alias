@@ -1,148 +1,106 @@
-// Runs the page's pure rules script and checks the game rules.
-const fs = require('fs'), vm = require('vm'), assert = require('assert');
-const html = fs.readFileSync(process.argv[2] || require('path').join(__dirname, '../www/index.html'), 'utf8');
-const src = html.match(/<script id="logic">([\s\S]*?)<\/script>/)[1];
-const ctx = {}; vm.createContext(ctx);
-vm.runInContext(src + ';Object.assign(this,{SCENARIOS,MODES,STREAK,canKill,newGame,tally,resolveRound,assignAlibis,nameClue,openRound});', ctx);
-const { SCENARIOS, STREAK, newGame, tally, resolveRound, assignAlibis, nameClue, openRound } = ctx;
+// Checks the game rules and scenario content, using the same files the app loads.
+const assert = require('assert');
+const { loadGame } = require('../sim/load.cjs');
+const G = loadGame();
+const { SCENARIOS, BALANCE, newGame, tally, resolveRound, assignAlibis, nameClue, openRound, canKill, clueFits, letters, killerCount } = G;
 const names = n => Array.from({ length: n }, (_, i) => 'P' + i);
-const roleIdx = (g, r) => g.players.map((p, i) => p.role === r ? i : -1).filter(i => i >= 0);
+const roleIdx = (g, r) => g.players.map((p, i) => (p.role === r ? i : -1)).filter(i => i >= 0);
+const set = (n, extra = {}) => ({ scenario: 'noir', lang: 'en', mode: 'classic', minutes: 2, killers: 'auto', ...extra });
 const allVote = (g, target, voterTarget) => Object.fromEntries(g.players.map((p, i) => [i, i === target ? voterTarget : target]).filter(([i]) => g.players[i].alive));
+let checks = 0;
+const ok = (c, m) => { assert(c, m); checks++; };
 
-// scenario data is complete
-for (const [id, sc] of Object.entries(SCENARIOS)) {
-  assert(sc.names.length >= 12 + sc.decoys, id + ' too few names');
-  assert.strictEqual(new Set(sc.names).size, sc.names.length, id + ' duplicate names');
-  assert(sc.places.length >= 6 && sc.beats.length >= 6 && sc.questions.length >= 6, id + ' content');
+// content: every case is complete in both languages, names never collide after letter folding
+const ids = Object.keys(SCENARIOS);
+ok(ids.length >= 20, 'at least 20 cases');
+for (const id of ids) for (const lang of ['en', 'ar']) {
+  const t = SCENARIOS[id][lang];
+  ok(t.names.length >= 12 + BALANCE.decoys[SCENARIOS[id].level], `${id}/${lang} names`);
+  ok(new Set(t.names.map(letters)).size === t.names.length, `${id}/${lang} names collide`);
+  ok(t.places.length >= 7 && t.beats.length >= 6 && t.questions.length >= 6, `${id}/${lang} content`);
+  for (const k of ['title', 'hook', 'intro', 'death', 'quiet', 'listLabel']) ok(t[k], `${id}/${lang} ${k}`);
 }
 
 // setup
-let g = newGame(names(5), { mode: 'classic', minutes: 2, twoKillers: true, scenario: 'school' });
-assert.strictEqual(roleIdx(g, 'killer').length, 1, 'second killer needs 7+');
-assert.strictEqual(g.aliasList.length, 5 + SCENARIOS.school.decoys);
-assert(g.players.every(p => g.aliasList.includes(p.alias)));
-assert.strictEqual(newGame(names(7), { mode: 'classic', minutes: 2, twoKillers: true, scenario: 'noir' }).players.filter(p => p.role === 'killer').length, 2);
-const rg = newGame(names(4), { mode: 'classic', minutes: 5, twoKillers: false, scenario: 'random' });
-assert(rg.scenario in SCENARIOS && rg.settings.minutes === SCENARIOS[rg.scenario].minutes, 'random uses its own time');
+for (const lang of ['en', 'ar']) for (let n = 4; n <= 12; n++) {
+  const g = newGame(names(n), set(n, { lang, scenario: 'random' }));
+  ok(roleIdx(g, 'killer').length === killerCount(n, 'auto'), 'auto killers');
+  ok(roleIdx(g, 'detective').length === 1, 'one detective');
+  ok(g.players.every(p => g.aliasList.includes(p.alias)), 'aliases listed');
+  ok(new Set(g.aliasList).size === g.aliasList.length, 'aliases unique');
+  ok(g.streakLen === BALANCE.streak(n) && g.killGap === BALANCE.killGap(n), 'table rules');
+}
+ok(killerCount(5, 3) === 1 && killerCount(7, 3) === 2 && killerCount(12, 3) === 3, 'killer cap');
 
-// alibis: every innocent shares a place with at least one other; killers get none
-for (let n = 4; n <= 12; n++) for (let t = 0; t < 20; t++) {
-  const a = newGame(names(n), { mode: 'classic', minutes: 2, twoKillers: true, scenario: 'cairo' });
-  const al = assignAlibis(a);
-  a.players.forEach((p, i) => {
-    if (p.role === 'killer') { assert.strictEqual(al[i].place, null); assert(al[i].options.length >= 1); }
-    else {
-      const mates = a.players.filter((q, j) => j !== i && al[j] && al[j].place === al[i].place);
-      assert.strictEqual(mates.length, al[i].others); assert(al[i].others >= 1, 'innocent alone at n=' + n);
-    }
+// alibis: everyone has a place; each killer shares it with two innocents when possible
+for (let n = 4; n <= 12; n++) for (let t = 0; t < 30; t++) {
+  const g = newGame(names(n), set(n, { scenario: 'souk' }));
+  const al = assignAlibis(g);
+  g.players.forEach((p, i) => {
+    const mates = g.players.filter((q, j) => j !== i && al[j].place === al[i].place);
+    ok(mates.length === al[i].others, 'alibi count matches');
+    if (p.role === 'killer' && n >= 3 * g.settings.killers + 1) ok(mates.filter(m => m.role !== 'killer').length >= 2, 'killer hides in a trio');
   });
 }
 
-// clues are true about a living killer and never repeat
-for (const sc of Object.keys(SCENARIOS)) for (let t = 0; t < 30; t++) {
-  const c = newGame(names(6), { mode: 'classic', minutes: 2, twoKillers: false, scenario: sc });
-  const seen = new Set();
+// clues are true about a living killer, never repeat, and work in Arabic
+for (const lang of ['en', 'ar']) for (const id of ids) {
+  const g = newGame(names(6), set(6, { scenario: id, lang }));
+  const [k] = roleIdx(g, 'killer'), seen = new Set();
   for (let r = 0; r < 6; r++) {
-    openRound(c); c.round++;
-    const clue = c.event.clue; if (!clue) continue;
-    assert(!seen.has(clue), 'repeat clue'); seen.add(clue);
+    openRound(g); g.round++;
+    const key = g.event.clue; if (!key) continue;
+    ok(clueFits(key, g.players[k].alias), `${id}/${lang} clue true`);
+    ok(!seen.has(key), 'clue repeats'); seen.add(key);
   }
-  assert(seen.size >= 4, sc + ' ran out of clues');
+  ok(seen.size >= 4, `${id}/${lang} ran out of clues`);
 }
-{ // spot-check truth on a known killer name
-  const c = newGame(names(5), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
-  const k = c.players.find(p => p.role === 'killer'); k.alias = 'Gin Rummy';
-  for (let i = 0; i < 10; i++) {
-    const t = nameClue(c); if (!t) break;
-    if (t.includes('single word')) assert.fail('Gin Rummy is two words');
-    const m = t.match(/letter (\w) in it/); if (m) assert('ginrummy'.includes(m[1].toLowerCase()), t);
-  }
-}
+ok(clueFits('has:ه', 'الملعقة الفضية') && clueFits('start:ا', 'أطلس'), 'arabic letter folding');
 
-// tie ejects nobody
-assert.strictEqual(tally({ 0: 1, 1: 0 }), null);
-assert.strictEqual(tally({ 0: 2, 1: 2, 2: 0 }), 2);
+// ties eject nobody
+ok(tally({ 0: 1, 1: 0 }) === null, 'tie');
+ok(tally({ 0: 2, 1: 2, 2: 0 }) === 2, 'plurality');
 
-// vote streak: ejected only after topping the vote STREAK rounds in a row; a tie resets it
-g = newGame(names(8), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
+// vote streak
+let g = newGame(names(8), set(8));
 let [k] = roleIdx(g, 'killer'), civ = roleIdx(g, 'civilian');
-g.votes = allVote(g, k, civ[0]); resolveRound(g);
-assert.strictEqual(g.report.count, 1); assert(g.players[k].alive);
-g.votes = { 0: 1, 1: 0 }; resolveRound(g); // tie
-assert.strictEqual(g.streak, null);
-for (let r = 1; r <= STREAK; r++) {
-  g.votes = allVote(g, k, civ[0]); resolveRound(g);
-  assert.strictEqual(g.players[k].alive, r < STREAK, 'round ' + r);
+for (let r = 1; r <= g.streakLen; r++) { g.votes = allVote(g, k, civ[0]); resolveRound(g); ok(g.players[k].alive === r < g.streakLen, 'streak round ' + r); }
+ok(g.report.ejected === k && g.players[k].out === 'vote', 'thrown out');
+g = newGame(names(8), set(8)); civ = roleIdx(g, 'civilian');
+g.votes = allVote(g, civ[0], civ[1]); resolveRound(g);
+g.votes = { 0: 1, 1: 0 }; resolveRound(g);
+ok(g.streak === null, 'tie resets streak');
+
+// kills, witnesses, penalty clears, pen rest
+g = newGame(names(6), set(6, { mode: 'penalty' }));
+[k] = roleIdx(g, 'killer'); civ = roleIdx(g, 'civilian');
+g.kills = [{ by: k, target: civ[0], alias: g.players[civ[0]].alias }, { by: k, target: civ[1], alias: 'nobody' }];
+resolveRound(g);
+ok(g.report.dead.length === 1 && g.players[civ[0]].out === 'killed', 'correct name kills');
+ok(g.report.clears.length === 1 && g.players[g.report.clears[0]].role !== 'killer', 'wrong name clears an innocent');
+g = newGame(names(9), set(9));
+const ks = roleIdx(g, 'killer');
+ok(ks.length === 2 && canKill(g, ks[0]), 'can kill round 1');
+let seenAny = 0;
+for (let t = 0; t < 200; t++) {
+  const h = newGame(names(6), set(6, { scenario: 'school' }));
+  const [hk] = roleIdx(h, 'killer');
+  h.kills = [{ by: hk, target: roleIdx(h, 'civilian')[0], alias: 'x' }];
+  resolveRound(h);
+  if (h.report.seen.length) { seenAny++; ok(h.report.seen[0] === h.alibis[hk].place, 'witness names the killer\'s place'); }
 }
-assert.strictEqual(g.report.ejected, k);
-assert.strictEqual(g.players[k].out, 'vote');
-assert.strictEqual(g.winner, 'town');
+ok(seenAny > 20 && seenAny < 200, 'witness is a chance, not a certainty');
+g.kills = [{ by: ks[0], target: roleIdx(g, 'civilian')[0], alias: 'x' }]; resolveRound(g);
+ok(!canKill(g, ks[0]) && canKill(g, ks[1]), 'pen rests in big games');
+resolveRound(g); ok(canKill(g, ks[0]), 'pen back after a round');
 
-// switching target resets the streak
-g = newGame(names(8), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
-civ = roleIdx(g, 'civilian');
-g.votes = allVote(g, civ[0], civ[1]); resolveRound(g);
-g.votes = allVote(g, civ[0], civ[1]); resolveRound(g);
-g.votes = allVote(g, civ[1], civ[0]); resolveRound(g);
-assert.deepStrictEqual({ ...g.streak }, { target: civ[1], count: 1 });
-assert(g.players[civ[0]].alive);
-
-// kills: correct name dies (role hidden), wrong name in penalty mode clears an innocent
-g = newGame(names(6), { mode: 'penalty', minutes: 2, twoKillers: false, scenario: 'space' });
-[k] = roleIdx(g, 'killer'); civ = roleIdx(g, 'civilian');
-g.kills = [{ by: k, target: civ[0], alias: g.players[civ[0]].alias }, { by: k, target: civ[1], alias: g.aliasList.find(a => a !== g.players[civ[1]].alias) }];
-resolveRound(g);
-assert.deepStrictEqual([...g.report.dead], [civ[0]]);
-assert.strictEqual(g.players[civ[0]].out, 'killed');
-assert.strictEqual(g.report.clues.length, 1);
-const cl = g.players[g.report.clues[0]];
-assert(cl.role !== 'killer' && cl.alive && cl.cleared);
-assert(g.notes.some(n => n.text.includes('is not a killer')));
-
-// streak target killed at night: streak cleared
-g = newGame(names(6), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'school' });
-[k] = roleIdx(g, 'killer'); civ = roleIdx(g, 'civilian');
-g.votes = allVote(g, civ[0], civ[1]);
-g.kills = [{ by: k, target: civ[0], alias: g.players[civ[0]].alias }];
-resolveRound(g);
-assert.strictEqual(g.streak, null);
-
-// killer reaches parity: killers win; detective death loses the case
-g = newGame(names(4), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'cairo' });
-[k] = roleIdx(g, 'killer'); const [d] = roleIdx(g, 'detective');
+// win conditions
+g = newGame(names(4), set(4));
+[k] = roleIdx(g, 'killer'); const [d] = roleIdx(g, 'detective'); civ = roleIdx(g, 'civilian');
 g.case = { target: k, round: 1 };
-g.kills = [{ by: k, target: d, alias: g.players[d].alias }];
-g.votes = { 0: 1, 1: 0 };
-resolveRound(g);
-assert.strictEqual(g.case, null);
-assert.strictEqual(g.winner, null, '2 innocents vs 1 killer goes on');
-const inn = roleIdx(g, 'civilian');
-g.kills = [{ by: k, target: inn[0], alias: g.players[inn[0]].alias }];
-resolveRound(g);
-assert.strictEqual(g.winner, 'killers');
+g.kills = [{ by: k, target: d, alias: g.players[d].alias }]; g.votes = { 0: 1, 1: 0 }; resolveRound(g);
+ok(g.case === null && g.winner === null, 'detective death drops the case');
+g.kills = [{ by: k, target: civ[0], alias: g.players[civ[0]].alias }]; resolveRound(g);
+ok(g.winner === 'killers', 'killers win at parity');
 
-// balance: small games throw out after 2, big games make killers rest a round
-assert.strictEqual(newGame(names(5), { mode: 'classic', minutes: 2, scenario: 'noir' }).streakLen, 2);
-assert.strictEqual(newGame(names(6), { mode: 'classic', minutes: 2, scenario: 'noir' }).streakLen, 3);
-assert.strictEqual(newGame(names(7), { mode: 'classic', minutes: 2, scenario: 'noir' }).killGap, 1);
-g = newGame(names(5), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
-civ = roleIdx(g, 'civilian');
-g.votes = allVote(g, civ[0], civ[1]); resolveRound(g);
-assert(g.players[civ[0]].alive);
-g.votes = allVote(g, civ[0], civ[1]); resolveRound(g);
-assert.strictEqual(g.report.ejected, civ[0], 'small game: out after 2');
-
-g = newGame(names(9), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
-[k] = roleIdx(g, 'killer'); civ = roleIdx(g, 'civilian');
-assert(ctx.canKill(g, k), 'can kill round 1');
-g.kills = [{ by: k, target: civ[0], alias: 'not a real name' }]; // a miss still uses the pen
-resolveRound(g);
-assert(!ctx.canKill(g, k), 'rests round 2');
-resolveRound(g);
-assert(ctx.canKill(g, k), 'can kill round 3');
-const mid = newGame(names(7), { mode: 'classic', minutes: 2, twoKillers: false, scenario: 'noir' });
-const [mk] = roleIdx(mid, 'killer');
-mid.kills = [{ by: mk, target: roleIdx(mid, 'civilian')[0], alias: 'x' }]; resolveRound(mid);
-assert(ctx.canKill(mid, mk), '7 players: every round');
-
-console.log('all rules checks passed');
+console.log(`all rules checks passed (${checks})`);
