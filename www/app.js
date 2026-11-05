@@ -1,7 +1,7 @@
 // ALIAS app: screens, the pass-the-phone flow, case theming, sound, haptics and update checks.
 // Rules live in rules.js, text in i18n.js and scenarios-*.js.
 const APP_VERSION = '__APP_VERSION__';
-const REPO = 'ben-dih/alias';
+const REPO = 'b3n-builds/alias';
 const KEY = 'alias-v3';
 const $app = document.getElementById('app');
 
